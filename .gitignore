@@ -246,3 +246,5 @@ ModelManifest.xml
 *.opendb
 *.filters
 *.user
+*.vcxproj
+*.vcxproj.filters

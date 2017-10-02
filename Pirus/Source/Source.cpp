@@ -1,12 +1,10 @@
 #include <iostream>
-#include "../Header/Node.h"
-
-using namespace std;
+#include "Tag.h"
 
 int main()
 {
-	Pirus::Node test_node("img", 0);
-	cout << test_node.get_name();
+	Pirus::Tag test_node("img", 0);
+	std::cout << test_node.get_name();
 
 	return 0;
 }

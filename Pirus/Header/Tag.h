@@ -6,14 +6,19 @@ namespace Pirus
 	class Tag
 	{
 	public:
-		Tag(const std::string& name,bool contains_content);
+		explicit Tag(const std::string& name, bool contains_content);
+		Tag(const Tag&) = default;
+		Tag(Tag&&) = default;
+		~Tag() = default;
+		Tag& operator=(const Tag&) = default;
+		Tag& operator=(Tag&&) = default;
 		const std::string& get_name() const;
 		bool contains_content() const;
 	
 	private:
-		uint8_t allow_content:1;
-		std::string name;
-
+		uint8_t m_allow_content:1;
+		std::string m_name;
+		
 		void prepare_name();
 	};
 }

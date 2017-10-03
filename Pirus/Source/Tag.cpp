@@ -4,14 +4,19 @@
 
 namespace Pirus
 {
-	Tag::Tag(const std::string & name, bool contains_content) : m_name(name), m_allow_content(contains_content), m_attributes{}
+	Tag::Tag(const std::string & name, bool contains_content) 
+		: m_name(name), 
+		m_allow_children(contains_content), 
+		m_attributes{}, 
+		m_children{},
+		m_text()
 	{
 		this->prepare_name();
 	}
 
-	bool Tag::contains_content() const
+	bool Tag::children_allowed() const
 	{
-		return this->m_allow_content ? true : false;
+		return this->m_allow_children ? true : false;
 	}
 
 	void Tag::add_attribute(const std::string& name, const std::string& key, const std::string& value)
@@ -72,6 +77,32 @@ namespace Pirus
 		return false;
 	}
 
+	void Tag::add_child(Tag&& child)
+	{
+		if(this->children_allowed())
+			this->m_children.emplace_back(child);
+		else
+			throw std::exception("Children not allowed");
+	}
+
+	std::vector<Pirus::Tag>::size_type Tag::count_children()
+	{
+		return this->m_children.size();
+	}
+
+	void Tag::clear_children()
+	{
+		this->m_children.clear();
+		this->m_text.clear();
+	}
+
+	void Tag::clear()
+	{
+		this->m_name.clear();
+		this->m_attributes.clear();
+		this->clear_children();
+	}
+
 	void Tag::prepare_name()
 	{
 	//tolower
@@ -102,16 +133,21 @@ namespace Pirus
 				if(attribute.first == "")
 					os << attribute.second;
 				else
-					os << attribute.first << ": " << attribute.second;
-				os << ";";
+					os << attribute.first << ": " << attribute.second << ";";
 			}
 			os << "\"";
 		}
 
 		//close tag
-		if (tag.contains_content())
+		if (tag.children_allowed())
 		{
-			os << "></" << tag.get_name() << ">";
+			os << ">";
+			for each (auto& child in tag.m_children)
+			{
+				os << child;
+			}
+
+			os << "</" << tag.get_name() << ">";
 		}
 		else
 		{

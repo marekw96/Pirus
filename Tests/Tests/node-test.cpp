@@ -76,6 +76,18 @@ TEST_CASE("Tag", "[node]")
 		REQUIRE(t.get_attributes("style") == vector);
 	}
 
+	SECTION("remove attribute")
+	{
+		Pirus::Tag t("test", 0);
+		t.add_attribute("style", "color", "#ffffff");
+
+		REQUIRE(t.get_attribute("style", "color") == "#ffffff");
+		REQUIRE(t.get_attributes("style").size() == 1u);
+		REQUIRE(t.remove_attribute("style", "color") == true);//remove
+		REQUIRE_THROWS(t.get_attribute("style","color"));
+		REQUIRE(t.get_attributes("style").size() == 0u);
+	}
+
 	SECTION("operator << ostream& - only name, no content")
 	{
 		Pirus::Tag t("test", 0);

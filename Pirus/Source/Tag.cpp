@@ -1,4 +1,5 @@
 #include "Tag.h"
+#include "Exceptions.h"
 #include <algorithm>
 #include <exception>
 
@@ -33,22 +34,19 @@ namespace Pirus
 	const std::string& Tag::get_attribute(const std::string& name, const std::string& key)
 	{
 		auto& vector_of_attributes = this->m_attributes[name];
+
 		for each (const auto& attribute in vector_of_attributes)
 		{
 			if(attribute.first == key)
 				return attribute.second;
 		}
-		throw std::exception("Not found");
+		throw Pirus::AttributeNotFound();
 	}
 
-	const std::vector<std::string> Tag::get_attributes_names()
+	std::vector<std::string> Tag::get_attributes_names()
 	{
-		std::vector<std::string> names;
-		names.reserve(this->m_attributes.size());
-		for each (auto& attribute in this->m_attributes)
-		{
-			names.emplace_back(attribute.first);
-		}
+		std::vector<std::string> names(this->m_attributes.size());
+		std::transform(this->m_attributes.begin(), this->m_attributes.end(), names.begin(),[](const auto& v){ return v.first;});
 		return names;
 	}
 
@@ -63,18 +61,12 @@ namespace Pirus
 		return false;
 	}
 
-	bool Tag::remove_attribute(const std::string & name, const std::string & key)
+	bool Tag::remove_attribute(const std::string& name, const std::string& key)
 	{
-		auto last = this->m_attributes[name].end();
-		for (auto item = this->m_attributes[name].begin(); item != last; ++item)
-		{
-			if ((*item).first == key)
-			{
-				this->m_attributes[name].erase(item);
-				return true;
-			}
-		}
-		return false;
+		std::vector<std::pair<std::string,std::string>>::size_type old_size = this->m_attributes[name].size();
+		auto new_end = std::remove_if(this->m_attributes[name].begin(), this->m_attributes[name].end(), [&](const std::pair<std::string,std::string>& v){ return v.first == key; });
+		this->m_attributes[name].erase(new_end,this->m_attributes[name].end());
+		return old_size != this->m_attributes[name].size();
 	}
 
 	void Tag::add_child(Tag&& child)
@@ -82,7 +74,7 @@ namespace Pirus
 		if(this->children_allowed())
 			this->m_children.emplace_back(child);
 		else
-			throw std::exception("Children not allowed");
+			throw Pirus::ChildNotAllowed();
 	}
 
 	std::vector<Pirus::Tag>::size_type Tag::count_children()
@@ -142,6 +134,7 @@ namespace Pirus
 		if (tag.children_allowed())
 		{
 			os << ">";
+			//print children
 			for each (auto& child in tag.m_children)
 			{
 				os << child;

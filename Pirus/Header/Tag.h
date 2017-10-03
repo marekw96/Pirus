@@ -1,4 +1,5 @@
 #pragma once
+#include "Constants.h"
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -21,7 +22,7 @@ namespace Pirus
 		void add_attribute(const std::string& name, const std::string& key, const std::string& value);
 		const std::vector<std::pair<std::string,std::string>>& get_attributes(const std::string& name);
 		const std::string& get_attribute(const std::string& name, const std::string& key);
-		const std::vector<std::string> get_attributes_names();
+		std::vector<std::string> get_attributes_names();
 		bool attribute_exists(const std::string& name, const std::string& key);
 		bool remove_attribute(const std::string& name, const std::string& key);
 		void add_child(Tag&& child);

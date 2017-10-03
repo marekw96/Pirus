@@ -1,4 +1,4 @@
-#include "../Header/Tag.h"
+#include "Tag.h"
 #include <algorithm>
 #include <exception>
 
@@ -16,6 +16,7 @@ namespace Pirus
 
 	void Tag::add_attribute(const std::string& name, const std::string& key, const std::string& value)
 	{
+		this->remove_attribute(name,key);
 		this->m_attributes[name].push_back(std::pair<std::string,std::string>(key,value));
 	}
 
@@ -46,6 +47,31 @@ namespace Pirus
 		return names;
 	}
 
+	bool Tag::attribute_exists(const std::string & name, const std::string & key)
+	{
+		auto& attributes = this->get_attributes(name);
+		for each (auto& var in attributes)
+		{
+			if(var.first == key)
+				return true;
+		}
+		return false;
+	}
+
+	bool Tag::remove_attribute(const std::string & name, const std::string & key)
+	{
+		auto last = this->m_attributes[name].end();
+		for (auto item = this->m_attributes[name].begin(); item != last; ++item)
+		{
+			if ((*item).first == key)
+			{
+				this->m_attributes[name].erase(item);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void Tag::prepare_name()
 	{
 	//tolower
@@ -73,7 +99,11 @@ namespace Pirus
 			os << " " << attributes.first << "=\"";
 			for each(auto& attribute in attributes.second)
 			{
-				os << attribute.first << ": " << attribute.second << ";";
+				if(attribute.first == "")
+					os << attribute.second;
+				else
+					os << attribute.first << ": " << attribute.second;
+				os << ";";
 			}
 			os << "\"";
 		}

@@ -22,6 +22,8 @@ namespace Pirus
 		const std::vector<std::pair<std::string,std::string>>& get_attributes(const std::string& name);
 		const std::string& get_attribute(const std::string& name, const std::string& key);
 		const std::vector<std::string> get_attributes_names();
+		bool attribute_exists(const std::string& name, const std::string& key);
+		bool remove_attribute(const std::string& name, const std::string& key);
 	
 		friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
 	private:

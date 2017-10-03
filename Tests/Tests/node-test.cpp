@@ -62,10 +62,16 @@ TEST_CASE("Tag", "[node]")
 	{
 		Pirus::Tag t("test", 0);
 		t.add_attribute("style", "color", "#ffffff");
-		t.add_attribute("style", "color", "#000000");
-
-		REQUIRE(t.get_attribute("style", "color") == "#000000");
+		//begin
 		std::vector<std::pair<std::string, std::string>> vector {{"color", "#ffffff"}};
+		REQUIRE(t.get_attributes("style") == vector);
+
+		//change color
+		t.add_attribute("style", "color", "#000000");
+		REQUIRE(t.get_attribute("style", "color") == "#000000");
+
+		//after editing
+		vector = {{"color", "#000000"}};
 		REQUIRE(t.get_attributes("style") == vector);
 	}
 
@@ -111,6 +117,28 @@ TEST_CASE("Tag", "[node]")
 		stream << t;
 
 		REQUIRE(stream.str() == "<test style=\"color: #ffffff;text-align: center;border: none;\"></test>");
+	}
+
+	SECTION("operator << - name, empty content, two attributes")
+	{
+		Pirus::Tag t("test", 1);
+		t.add_attribute("style", "color", "#ffffff");
+		t.add_attribute("on-click", "", "alert('aa')");
+
+		std::stringstream stream;
+		stream << t;
+
+		REQUIRE(stream.str() == "<test style=\"color: #ffffff;\" on-click=\"alert('aa');\"></test>");
+	}
+
+	SECTION("attribute_exists")
+	{
+		Pirus::Tag t("test", 1);
+		t.add_attribute("style", "color", "#ffffff");
+
+		REQUIRE(t.attribute_exists("style", "color") == true);
+
+		REQUIRE(t.attribute_exists("style", "text-align") == false);
 	}
 }
 

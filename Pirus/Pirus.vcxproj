@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Constants.h" />
     <ClInclude Include="Header\Exceptions.h" />
     <ClInclude Include="Header\Tag.h" />
   </ItemGroup>

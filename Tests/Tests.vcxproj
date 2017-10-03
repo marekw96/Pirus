@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Pirus\Header\Exceptions.h" />
     <ClInclude Include="..\Pirus\Header\Tag.h" />
     <ClInclude Include="Tests\catch.hpp" />
   </ItemGroup>

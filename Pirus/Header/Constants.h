@@ -7,5 +7,4 @@ namespace Pirus
 	using text = std::wstring;
 
 	using attribute = std::pair<string,string>;
-
 }

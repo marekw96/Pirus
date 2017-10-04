@@ -35,7 +35,7 @@ namespace Pirus
 	{
 		auto& vector_of_attributes = this->m_attributes[name];
 
-		for each (const auto& attribute in vector_of_attributes)
+		for(const auto& attribute : vector_of_attributes)
 		{
 			if(attribute.first == key)
 				return attribute.second;
@@ -52,8 +52,8 @@ namespace Pirus
 
 	bool Tag::attribute_exists(const string& name, const string& key)
 	{
-		auto& attributes = this->get_attributes(name);
-		for each (auto& var in attributes)
+		const auto& attributes = this->get_attributes(name);
+		for(const auto& var : attributes)
 		{
 			if(var.first == key)
 				return true;
@@ -63,8 +63,8 @@ namespace Pirus
 
 	bool Tag::remove_attribute(const string& name, const string& key)
 	{
-		std::vector<attribute>::size_type old_size = this->m_attributes[name].size();
-		auto new_end = std::remove_if(this->m_attributes[name].begin(), this->m_attributes[name].end(), [&](const attribute& v){ return v.first == key; });
+		auto old_size = this->m_attributes[name].size();
+		auto new_end = std::remove_if(this->m_attributes[name].begin(), this->m_attributes[name].end(), [&](const auto& v){ return v.first == key; });
 		this->m_attributes[name].erase(new_end,this->m_attributes[name].end());
 		return old_size != this->m_attributes[name].size();
 	}
@@ -117,10 +117,10 @@ namespace Pirus
 		os << "<" << tag.get_name();
 
 		//print attributes
-		for each(auto& attributes in tag.m_attributes)
+		for(const auto& attributes : tag.m_attributes)
 		{
 			os << " " << attributes.first << "=\"";
-			for each(auto& attribute in attributes.second)
+			for(const auto& attribute : attributes.second)
 			{
 				if(attribute.first == "")
 					os << attribute.second;
@@ -135,7 +135,7 @@ namespace Pirus
 		{
 			os << ">";
 			//print children
-			for each (auto& child in tag.m_children)
+			for(const auto& child : tag.m_children)
 			{
 				os << child;
 			}

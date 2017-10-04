@@ -26,14 +26,17 @@ namespace Pirus
 		bool attribute_exists(const string& name, const string& key);
 		bool remove_attribute(const string& name, const string& key);
 		void add_child(Tag&& child);
+		void add_child(const Tag& child);
 		std::vector<Pirus::Tag>::size_type count_children();
 		void clear_children();
+		void set_text(const text& t);
+		const text& get_text() const;
 
 		void clear();
 	
 		friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
 	private:
-		uint8_t m_allow_children:1;
+		bool m_allow_children;
 		string m_name;
 		std::unordered_map<string,std::vector<attribute>> m_attributes;
 		std::vector<Pirus::Tag> m_children;

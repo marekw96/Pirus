@@ -17,7 +17,7 @@ namespace Pirus
 
 	bool Tag::children_allowed() const
 	{
-		return this->m_allow_children ? true : false;
+		return this->m_allow_children;
 	}
 
 	void Tag::add_attribute(const string& name, const string& key, const string& value)
@@ -33,14 +33,12 @@ namespace Pirus
 
 	const string& Tag::get_attribute(const string& name, const string& key)
 	{
-		auto& vector_of_attributes = this->m_attributes[name];
+		auto found = std::find_if(this->m_attributes[name].begin(), this->m_attributes[name].end(),[&](const auto& atr){ return atr.first == key;});
 
-		for(const auto& attribute : vector_of_attributes)
-		{
-			if(attribute.first == key)
-				return attribute.second;
-		}
-		throw Pirus::AttributeNotFound();
+		if(found != this->m_attributes[name].end())
+			return found->second;
+		else
+			throw Pirus::AttributeNotFound();
 	}
 
 	std::vector<string> Tag::get_attributes_names()
@@ -52,13 +50,12 @@ namespace Pirus
 
 	bool Tag::attribute_exists(const string& name, const string& key)
 	{
-		const auto& attributes = this->get_attributes(name);
-		for(const auto& var : attributes)
-		{
-			if(var.first == key)
-				return true;
-		}
-		return false;
+		auto found = std::find_if(this->m_attributes[name].begin(), this->m_attributes[name].end(), [&] (const auto& atr) { return atr.first == key; });
+
+		if (found != this->m_attributes[name].end())
+			return true;
+		else
+			return false;
 	}
 
 	bool Tag::remove_attribute(const string& name, const string& key)
@@ -71,10 +68,17 @@ namespace Pirus
 
 	void Tag::add_child(Tag&& child)
 	{
+		this->m_text.clear();
+	
 		if(this->children_allowed())
 			this->m_children.emplace_back(child);
 		else
 			throw Pirus::ChildNotAllowed();
+	}
+
+	void Tag::add_child(const Tag& child)
+	{
+		this->add_child(Tag(child));
 	}
 
 	std::vector<Pirus::Tag>::size_type Tag::count_children()
@@ -86,6 +90,20 @@ namespace Pirus
 	{
 		this->m_children.clear();
 		this->m_text.clear();
+	}
+
+	void Tag::set_text(const text & t)
+	{
+		if(!this->children_allowed())
+			throw ChildNotAllowed();
+
+		this->clear_children();
+		this->m_text = t;
+	}
+
+	const text& Tag::get_text() const
+	{
+		return this->m_text;
 	}
 
 	void Tag::clear()
@@ -135,6 +153,7 @@ namespace Pirus
 		{
 			os << ">";
 			//print children
+			os << tag.get_text();
 			for(const auto& child : tag.m_children)
 			{
 				os << child;

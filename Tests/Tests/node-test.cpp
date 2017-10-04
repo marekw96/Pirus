@@ -7,7 +7,7 @@ TEST_CASE("Tag", "[node]")
 {
 	SECTION("c-tor")
 	{
-		Pirus::Tag test_node("img",0);
+		Pirus::Tag test_node("img",false);
 
 		REQUIRE( test_node.get_name() == "img");
 		REQUIRE( test_node.children_allowed() == false);
@@ -16,7 +16,7 @@ TEST_CASE("Tag", "[node]")
 
 	SECTION("c-tor text transform")
 	{
-		Pirus::Tag t(" iMg ",0);
+		Pirus::Tag t(" iMg ",false);
 		
 		REQUIRE(t.get_name() == "img");
 	}
@@ -150,7 +150,6 @@ TEST_CASE("Tag", "[node]")
 		t.add_attribute("style", "color", "#ffffff");
 
 		REQUIRE(t.attribute_exists("style", "color") == true);
-
 		REQUIRE(t.attribute_exists("style", "text-align") == false);
 	}
 
@@ -162,6 +161,11 @@ TEST_CASE("Tag", "[node]")
 
 		t.add_child(Pirus::Tag("child",0));
 		REQUIRE(t.count_children() == 1);
+
+		Pirus::Tag child("child2", 1);
+		t.add_child(child);
+
+		REQUIRE(t.count_children() == 2);
 	}
 
 	SECTION("clear children")
@@ -199,6 +203,30 @@ TEST_CASE("Tag", "[node]")
 		stream << a;
 
 		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\"><img src=\"test.jpg\" /></a>");
+	}
+
+	SECTION("text operations")
+	{
+		Pirus::Tag test("text",0);
+		REQUIRE_THROWS(test.set_text("text"));
+
+		Pirus::Tag f("test",1);
+		REQUIRE(f.get_text() == "");
+
+		f.add_child(test);
+		REQUIRE(f.count_children() == 1);
+
+		REQUIRE_NOTHROW(f.set_text("txt"));
+		REQUIRE(f.get_text() == "txt");
+		REQUIRE(f.count_children() == 0);
+
+		std::stringstream stream;
+		stream << f;
+		REQUIRE(stream.str() == "<test>txt</test>");
+
+		f.add_child(test);
+		REQUIRE(f.count_children() == 1);
+		REQUIRE(f.get_text() == "");
 	}
 }
 

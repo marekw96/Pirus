@@ -81,7 +81,7 @@ namespace Pirus
 		this->add_child(Tag(child));
 	}
 
-	std::vector<Pirus::Tag>::size_type Tag::count_children()
+	std::vector<Pirus::Tag>::size_type Tag::count_children() const
 	{
 		return this->m_children.size();
 	}
@@ -104,6 +104,16 @@ namespace Pirus
 	const text& Tag::get_text() const
 	{
 		return this->m_text;
+	}
+
+	std::vector<Pirus::Tag>& Tag::get_children()
+	{
+		return this->m_children;
+	}
+
+	const std::vector<Pirus::Tag>& Tag::get_children() const
+	{
+		return this->m_children;
 	}
 
 	void Tag::clear()

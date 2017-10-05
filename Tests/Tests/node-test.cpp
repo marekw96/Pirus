@@ -228,5 +228,29 @@ TEST_CASE("Tag", "[node]")
 		REQUIRE(f.count_children() == 1);
 		REQUIRE(f.get_text() == "");
 	}
+
+	SECTION("get children")
+	{
+		Pirus::Tag t("t",1);
+		t.add_child(Pirus::Tag("a1", false));
+		t.add_child(Pirus::Tag("a2", false));
+
+		REQUIRE(t.count_children() == 2);
+		REQUIRE(t.get_children()[0].get_name() == "a1");
+		REQUIRE(t.get_children()[1].get_name() == "a2");
+	}
+
+	SECTION("get children - const")
+	{
+		Pirus::Tag t("t", 1);
+		t.add_child(Pirus::Tag("a1", false));
+		t.add_child(Pirus::Tag("a2", false));
+
+		const auto& const_t = t;
+
+		REQUIRE(const_t.count_children() == 2);
+		REQUIRE(const_t.get_children()[0].get_name() == "a1");
+		REQUIRE(const_t.get_children()[1].get_name() == "a2");
+	}
 }
 

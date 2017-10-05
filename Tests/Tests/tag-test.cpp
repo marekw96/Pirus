@@ -3,15 +3,15 @@
 
 #include "Tag.h"
 
-TEST_CASE("Tag", "[node]")
+TEST_CASE("Tag", "[tag]")
 {
 	SECTION("c-tor")
 	{
-		Pirus::Tag test_node("img",false);
+		Pirus::Tag test_tag("img",false);
 
-		REQUIRE( test_node.get_name() == "img");
-		REQUIRE( test_node.children_allowed() == false);
-		REQUIRE( test_node.count_children() == 0);
+		REQUIRE( test_tag.get_name() == "img");
+		REQUIRE( test_tag.children_allowed() == false);
+		REQUIRE( test_tag.count_children() == 0);
 	}
 
 	SECTION("c-tor text transform")

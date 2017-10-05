@@ -33,6 +33,7 @@ namespace Pirus
 		const text& get_text() const;
 		std::vector<Pirus::Tag>& get_children();
 		const std::vector<Pirus::Tag>& get_children() const;
+		size_t get_level() const;
 
 		void clear();
 	
@@ -43,7 +44,9 @@ namespace Pirus
 		std::unordered_map<string,std::vector<attribute>> m_attributes;
 		std::vector<Pirus::Tag> m_children;
 		text m_text;
+		size_t m_level;
 		
 		void prepare_name();
+		void update_children_level();
 	};
 }

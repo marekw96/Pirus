@@ -148,9 +148,13 @@
   <ItemGroup>
     <ClInclude Include="Header\Constants.h" />
     <ClInclude Include="Header\Exceptions.h" />
+    <ClInclude Include="Header\Fragment.h" />
+    <ClInclude Include="Header\Splitter.h" />
     <ClInclude Include="Header\Tag.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Fragment.cpp" />
+    <ClCompile Include="Source\Splitter.cpp" />
     <ClCompile Include="Source\Tag.cpp" />
     <ClCompile Include="Source\Source.cpp" />
   </ItemGroup>

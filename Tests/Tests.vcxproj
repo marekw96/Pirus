@@ -147,11 +147,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Pirus\Header\Exceptions.h" />
+    <ClInclude Include="..\Pirus\Header\Fragment.h" />
+    <ClInclude Include="..\Pirus\Header\Splitter.h" />
     <ClInclude Include="..\Pirus\Header\Tag.h" />
     <ClInclude Include="Tests\catch.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Pirus\Source\Fragment.cpp" />
+    <ClCompile Include="..\Pirus\Source\Splitter.cpp" />
     <ClCompile Include="..\Pirus\Source\Tag.cpp" />
+    <ClCompile Include="fragment_test.cpp" />
+    <ClCompile Include="splitter-test.cpp" />
+    <ClCompile Include="test-main.cpp" />
     <ClCompile Include="Tests\tag-test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

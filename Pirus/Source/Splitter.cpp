@@ -30,6 +30,7 @@ std::vector<Pirus::Fragment>& Pirus::Splitter::operator()(const string & code)
 				if(sign == '>')
 				{
 					this->make_fragment();
+					this->m_status = FRAGMENT_TYPE::TEXT;
 				}
 				else if (sign == ' ')
 				{
@@ -83,11 +84,26 @@ std::vector<Pirus::Fragment>& Pirus::Splitter::get_fragments()
 
 void Pirus::Splitter::make_fragment()
 {
+	if(this->m_stream.str().size() == 0)
+		return;
+
 	Pirus::Fragment f;
-	f.level = this->m_level;
 	f.type = this->m_status;
 	f.value = this->m_stream.str();
-	this->m_stream.clear();
+	this->m_stream.str("");
+
+	if(f.type != FRAGMENT_TYPE::TEXT)
+	{
+		if(f.value[0] == '/')//close TAG
+		{
+			f.value.erase(0,1);
+			f.type = FRAGMENT_TYPE::CLOSE_TAG;
+			this->m_level -= 2 ;
+		}
+	}
+
+	f.level = this->m_level;
+	++this->m_level;
 
 	this->m_fragments.emplace_back(f);
 }

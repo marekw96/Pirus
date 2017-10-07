@@ -17,7 +17,7 @@ TEST_CASE("Splitter", "[splitter]")
 		
 		Pirus::Fragment a1;
 		a1.level = 0;
-		a1.type = Pirus::FRAGMENT_TYPE::OPEN_TAG;
+		a1.type = Pirus::FRAGMENT_TYPE::TAG;
 		a1.value = "a";
 
 		Pirus::Fragment text;
@@ -26,9 +26,9 @@ TEST_CASE("Splitter", "[splitter]")
 		text.value = "TEXT";
 
 		Pirus::Fragment a2;
-		a1.level = 0;
-		a1.type = Pirus::FRAGMENT_TYPE::CLOSE_TAG;
-		a1.value = "a";
+		a2.level = 0;
+		a2.type = Pirus::FRAGMENT_TYPE::CLOSE_TAG;
+		a2.value = "a";
 
 		std::vector<Pirus::Fragment> correct_fragments = {a1,text,a2};
 

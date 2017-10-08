@@ -98,7 +98,17 @@ void Pirus::Splitter::make_fragment()
 		{
 			f.value.erase(0,1);
 			f.type = FRAGMENT_TYPE::CLOSE_TAG;
-			this->m_level -= 2 ;
+			this->m_level -= 2;
+		}
+		if (f.type == FRAGMENT_TYPE::ATTRIBUTE_VALUE)
+		{
+			this->m_level -= 1;
+			if(f.value[0] == '"')
+				f.value = f.value.substr(1);
+		}
+		else if (f.type == FRAGMENT_TYPE::ATTRIBUTE_NAME)
+		{
+			this->m_level -= 1;
 		}
 	}
 

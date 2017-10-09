@@ -156,9 +156,9 @@
     <ClCompile Include="..\Pirus\Source\Fragment.cpp" />
     <ClCompile Include="..\Pirus\Source\Splitter.cpp" />
     <ClCompile Include="..\Pirus\Source\Tag.cpp" />
-    <ClCompile Include="fragment_test.cpp" />
-    <ClCompile Include="splitter-test.cpp" />
-    <ClCompile Include="test-main.cpp" />
+    <ClCompile Include="Tests\fragment_test.cpp" />
+    <ClCompile Include="Tests\splitter-test.cpp" />
+    <ClCompile Include="Tests\test-main.cpp" />
     <ClCompile Include="Tests\tag-test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

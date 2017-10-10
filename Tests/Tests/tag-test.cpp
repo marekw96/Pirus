@@ -53,7 +53,7 @@ TEST_CASE("Tag", "[tag]")
 		t.add_attribute("style", "color", "#ffffff");
 		t.add_attribute("ng-repeat", "", "center");
 
-		auto& atr = t.get_attributes_names();
+		auto atr = t.get_attributes_names();
 
 		REQUIRE(atr.size() == 2);
 		REQUIRE(std::any_of(atr.begin(), atr.end(), [] (const auto& el) {return el == "style"; }));

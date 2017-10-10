@@ -53,9 +53,11 @@ TEST_CASE("Tag", "[tag]")
 		t.add_attribute("style", "color", "#ffffff");
 		t.add_attribute("ng-repeat", "", "center");
 
-		std::vector<std::string> vector{"style","ng-repeat"};
+		auto& atr = t.get_attributes_names();
 
-		REQUIRE(t.get_attributes_names() == vector);
+		REQUIRE(atr.size() == 2);
+		REQUIRE(std::any_of(atr.begin(), atr.end(), [] (const auto& el) {return el == "style"; }));
+		REQUIRE(std::any_of(atr.begin(), atr.end(), [] (const auto& el) { return el == "ng-repeat"; }));
 	}
 
 	SECTION("setting new value to already set one")
@@ -140,7 +142,13 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << t;
 
-		REQUIRE(stream.str() == "<test style=\"color: #ffffff;\" on-click=\"alert('aa')\"></test>");
+		std::string str = stream.str();
+		
+		REQUIRE(str.size() == 60);
+		REQUIRE(str.find("<test ") == 0);
+		REQUIRE(str.find("></test>") == 60 - 8);
+		REQUIRE(str.find(" style=\"color: #ffffff;\"") != std::string::npos );
+		REQUIRE(str.find(" on-click=\"alert('aa')\"") != std::string::npos );
 	}
 
 	SECTION("attribute_exists")

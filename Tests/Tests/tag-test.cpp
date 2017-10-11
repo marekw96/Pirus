@@ -216,30 +216,6 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\"><img src=\"test.jpg\" /></a>");
 	}
 
-	SECTION("text child")
-	{
-		Pirus::Tag test("text",0);
-		REQUIRE_THROWS(test.add_child("text"));
-
-		Pirus::Tag f("test",1);
-		REQUIRE(f.get_text() == "");
-
-		f.add_child(test);
-		REQUIRE(f.count_children() == 1);
-
-		REQUIRE_NOTHROW(f.add_child("txt"));
-		REQUIRE(f.get_text() == "txt");
-		REQUIRE(f.count_children() == 0);
-
-		std::stringstream stream;
-		stream << f;
-		REQUIRE(stream.str() == "<test>txt</test>");
-
-		f.add_child(test);
-		REQUIRE(f.count_children() == 1);
-		REQUIRE(f.get_text() == "");
-	}
-
 	SECTION("text child -add, not allowed by tag type")
 	{
 		Pirus::Tag test("text", 0);
@@ -344,8 +320,8 @@ TEST_CASE("Tag", "[tag]")
 		t.add_child("txt");
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
-		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
-		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TEXT);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
+		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::TEXT);
 	}
 }
 

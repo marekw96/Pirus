@@ -166,11 +166,11 @@ TEST_CASE("Tag", "[tag]")
 
 		REQUIRE(t.count_children() == 0);
 
-		t.add_child(Pirus::Tag("child",0));
+		REQUIRE_NOTHROW(t.add_child(Pirus::Tag("child",0)));
 		REQUIRE(t.count_children() == 1);
 
 		Pirus::Tag child("child2", 1);
-		t.add_child(child);
+		REQUIRE_NOTHROW(t.add_child(child));
 
 		REQUIRE(t.count_children() == 2);
 	}
@@ -183,6 +183,10 @@ TEST_CASE("Tag", "[tag]")
 		t.add_child(Pirus::Tag("child", 0));
 
 		REQUIRE(t.count_children() == 3);
+		t.clear_children();
+		REQUIRE(t.count_children() == 0);
+		REQUIRE(t.get_children().size() == 0);
+		REQUIRE(t.get_text().size() == 0);
 	}
 
 	SECTION("operator << - children")
@@ -212,10 +216,10 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\"><img src=\"test.jpg\" /></a>");
 	}
 
-	SECTION("text operations")
+	SECTION("text child")
 	{
 		Pirus::Tag test("text",0);
-		REQUIRE_THROWS(test.set_text("text"));
+		REQUIRE_THROWS(test.add_child("text"));
 
 		Pirus::Tag f("test",1);
 		REQUIRE(f.get_text() == "");
@@ -223,7 +227,7 @@ TEST_CASE("Tag", "[tag]")
 		f.add_child(test);
 		REQUIRE(f.count_children() == 1);
 
-		REQUIRE_NOTHROW(f.set_text("txt"));
+		REQUIRE_NOTHROW(f.add_child("txt"));
 		REQUIRE(f.get_text() == "txt");
 		REQUIRE(f.count_children() == 0);
 
@@ -234,6 +238,41 @@ TEST_CASE("Tag", "[tag]")
 		f.add_child(test);
 		REQUIRE(f.count_children() == 1);
 		REQUIRE(f.get_text() == "");
+	}
+
+	SECTION("text child -add, not allowed by tag type")
+	{
+		Pirus::Tag test("text", 0);
+		REQUIRE_THROWS(test.add_child("text"));
+	}
+
+	SECTION("text child -add if different child")
+	{
+		Pirus::Tag test("text", 0);
+		Pirus::Tag f("test", 1);
+		REQUIRE(f.get_text() == "");
+		REQUIRE_NOTHROW(f.add_child(test));
+		REQUIRE_THROWS(f.add_child("TEST"));
+	}
+
+	SECTION("text child - print")
+	{
+		Pirus::Tag f("test", 1);
+		REQUIRE_NOTHROW(f.add_child("txt"));
+		REQUIRE(f.get_text() == "txt");
+		REQUIRE(f.count_children() == 0);
+
+		std::stringstream stream;
+		stream << f;
+		REQUIRE(stream.str() == "<test>txt</test>");
+	}
+
+	SECTION("add child when text is added")
+	{
+		Pirus::Tag f("test", 1);
+		REQUIRE_NOTHROW(f.add_child("txt"));
+		REQUIRE(f.get_text() == "txt");
+		REQUIRE_THROWS(f.add_child(Pirus::Tag("text", 0)));
 	}
 
 	SECTION("get children")
@@ -269,6 +308,44 @@ TEST_CASE("Tag", "[tag]")
 		t.get_children()[0].add_child(t);
 		REQUIRE(t.get_children()[0].get_children()[0].get_level() == 2);
 		REQUIRE(t.get_children()[0].get_children()[0].get_children()[0].get_level() == 3);
+	}
+
+	SECTION("CHILD_TYPE :: NONE")
+	{
+		Pirus::Tag t("test", true);
+		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TEXT);
+	}
+
+	SECTION("CHILD_TYPE :: NOT_ALLOWED")
+	{
+		Pirus::Tag t("test", false);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
+		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TEXT);
+	}
+
+	SECTION("CHILD_TYPE :: TAG")
+	{
+		Pirus::Tag t("test", true);
+		t.add_child(Pirus::Tag("child", false));
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
+		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TEXT);
+	}
+
+	SECTION("CHILD_TYPE :: TEXT")
+	{
+		Pirus::Tag t("test", true);
+		t.add_child("txt");
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
+		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
+		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TEXT);
 	}
 }
 

@@ -27,14 +27,14 @@ namespace Pirus
 		bool remove_attribute(const string& name, const string& key);
 		void add_child(Tag&& child);
 		void add_child(const Tag& child);
+		void add_child(const text& child);
 		std::vector<Pirus::Tag>::size_type count_children() const;
 		void clear_children();
-		void set_text(const text& t);
 		const text& get_text() const;
 		std::vector<Pirus::Tag>& get_children();
 		const std::vector<Pirus::Tag>& get_children() const;
 		size_t get_level() const;
-
+		Pirus::CHILD_TYPE get_type_of_children() const;
 		void clear();
 	
 		friend std::ostream& operator<<(std::ostream& os, const Tag& tag);

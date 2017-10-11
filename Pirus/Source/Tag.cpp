@@ -69,23 +69,32 @@ namespace Pirus
 
 	void Tag::add_child(Tag&& child)
 	{
-		this->m_text.clear();
-	
-		if(this->children_allowed())
-		{
-			child.m_level = this->m_level + 1;
-			child.update_children_level();
-			this->m_children.emplace_back(child);
-		}
-		else
-		{
+		if(!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
-		}
+
+		if(this->get_type_of_children() == Pirus::CHILD_TYPE::TEXT)
+			throw Pirus::AlreadyHasDiffrentChildType();
+
+		child.m_level = this->m_level + 1;
+		child.update_children_level();
+		this->m_children.emplace_back(child);
+
 	}
 
 	void Tag::add_child(const Tag& child)
 	{
 		this->add_child(Tag(child));
+	}
+
+	void Tag::add_child(const text & child)
+	{
+		if (!this->children_allowed())
+			throw Pirus::ChildNotAllowed();
+
+		if (this->get_type_of_children() == Pirus::CHILD_TYPE::TAG)
+			throw Pirus::AlreadyHasDiffrentChildType();
+
+		this->m_text = child;
 	}
 
 	std::vector<Pirus::Tag>::size_type Tag::count_children() const
@@ -97,15 +106,6 @@ namespace Pirus
 	{
 		this->m_children.clear();
 		this->m_text.clear();
-	}
-
-	void Tag::set_text(const text & t)
-	{
-		if(!this->children_allowed())
-			throw ChildNotAllowed();
-
-		this->clear_children();
-		this->m_text = t;
 	}
 
 	const text& Tag::get_text() const
@@ -126,6 +126,30 @@ namespace Pirus
 	size_t Tag::get_level() const
 	{
 		return this->m_level;
+	}
+
+	Pirus::CHILD_TYPE Tag::get_type_of_children() const
+	{
+		if(!this->children_allowed())
+		{
+			return Pirus::CHILD_TYPE::NOT_ALLOWED;
+		}
+		
+		if (this->get_text().size() == 0)
+		{
+			if(this->count_children() == 0)
+			{
+				return Pirus::CHILD_TYPE::NONE;
+			}
+			else
+			{
+				return Pirus::CHILD_TYPE::TAG;
+			}
+		}
+		else
+		{
+			return Pirus::CHILD_TYPE::TEXT;
+		}
 	}
 
 	void Tag::clear()

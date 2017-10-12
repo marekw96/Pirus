@@ -21,6 +21,15 @@ namespace Pirus
 		std::stringstream m_stream;
 		bool m_escape;
 
-		void make_fragment();
+		Pirus::Fragment make_fragment();
+
+		template <typename T>
+		void parse_text(T sign);
+		template <typename T>
+		void parse_tag(T sign);
+		template <typename T>
+		void parse_attribute_name(T sign);
+		template <typename T>
+		void parse_attribute_value(T sign);
 	};
 }

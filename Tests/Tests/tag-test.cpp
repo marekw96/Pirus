@@ -255,11 +255,11 @@ TEST_CASE("Tag", "[tag]")
 		Pirus::Tag f("test", 1);
 		REQUIRE_NOTHROW(f.add_child("txt"));
 		REQUIRE(f.get_text() == "txt");
-		REQUIRE(f.count_children() == 0);
+		REQUIRE(f.count_children() == 1);
 
 		std::stringstream stream;
 		stream << f;
-		REQUIRE(stream.str() == "<test>txt</test>");
+		REQUIRE(stream.str() == "<test>\n\ttxt\n</test>");
 	}
 
 	SECTION("add child when text is added")

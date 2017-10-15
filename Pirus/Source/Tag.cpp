@@ -2,6 +2,7 @@
 #include "Exceptions.h"
 #include <algorithm>
 #include <exception>
+#include <sstream>
 
 namespace Pirus
 {
@@ -91,7 +92,9 @@ namespace Pirus
 		if (this->get_type_of_children() == Pirus::CHILD_TYPE::TAG)
 			throw Pirus::AlreadyHasDiffrentChildType();
 
-		this->m_text = child;
+		Tag tag("plain text", true);
+		tag.m_text = child;
+		this->add_child(tag);
 	}
 
 	std::vector<Pirus::Tag>::size_type Tag::count_children() const
@@ -107,6 +110,10 @@ namespace Pirus
 
 	const text& Tag::get_text() const
 	{
+		auto find = std::find_if(this->m_children.begin(), this->m_children.end(), [](const auto& child){ return child.get_name() == "plain text"; });
+		if(find != this->m_children.end())
+			return find->get_text();
+
 		return this->m_text;
 	}
 
@@ -152,6 +159,58 @@ namespace Pirus
 		this->clear_children();
 	}
 
+	text Tag::to_text(size_t level) const
+	{
+		std::stringstream output;
+		
+		for(size_t it = 0; it < level; ++it)
+			output << '\t';
+
+		if (this->get_name() == "plain text")
+		{
+			output << this->get_text();
+			return output.str();;
+		}
+
+		output << "<" << this->get_name();
+
+		for (const auto& attributes : this->m_attributes)
+		{
+			output << " " << attributes.first << "=\"";
+			for (const auto& attribute : attributes.second)
+			{
+				if (attribute.first == "")
+					output << attribute.second;
+				else
+					output << attribute.first << ": " << attribute.second << ";";
+			}
+			output << "\"";
+		}
+
+		if (this->children_allowed())
+		{
+			output << ">";
+
+			for (const auto& child : this->m_children)
+			{
+				output << '\n' << child.to_text(level+1);
+			}
+
+			if (this->get_type_of_children() != CHILD_TYPE::NONE)
+				output << '\n';
+
+			for (size_t it = 0; it < level; ++it)
+				output << '\t';
+			output << "</" << this->get_name() << ">";
+		}
+		else
+		{
+			output << " />";
+		}
+
+		return output.str();
+	}
+
 	void Tag::prepare_name()
 	{
 	//tolower
@@ -170,40 +229,7 @@ namespace Pirus
 
 	std::ostream& operator<<(std::ostream& os, const Tag& tag)
 	{
-		//opentag
-		os << "<" << tag.get_name();
-
-		//print attributes
-		for(const auto& attributes : tag.m_attributes)
-		{
-			os << " " << attributes.first << "=\"";
-			for(const auto& attribute : attributes.second)
-			{
-				if(attribute.first == "")
-					os << attribute.second;
-				else
-					os << attribute.first << ": " << attribute.second << ";";
-			}
-			os << "\"";
-		}
-
-		//close tag
-		if (tag.children_allowed())
-		{
-			os << ">";
-			//print children
-			os << tag.get_text();
-			for(const auto& child : tag.m_children)
-			{
-				os << child;
-			}
-
-			os << "</" << tag.get_name() << ">";
-		}
-		else
-		{
-			os << " />";
-		}
+		os << tag.to_text();
 
 		return os;
 	}

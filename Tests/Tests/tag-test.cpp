@@ -189,7 +189,7 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE(t.get_text().size() == 0);
 	}
 
-	SECTION("operator << - children")
+	SECTION("operator << & to_text - children")
 	{
 		Pirus::Tag t("test", 1);
 		t.add_child(Pirus::Tag("child", 0));
@@ -197,10 +197,11 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << t;
 
-		REQUIRE( stream.str() == "<test><child /></test>");
+		REQUIRE( stream.str() == "<test>\n\t<child />\n</test>");
+		REQUIRE( t.to_text() == "<test>\n\t<child />\n</test>");
 	}
 
-	SECTION("operator << - children & attributes")
+	SECTION("operator << & to_text - children & attributes")
 	{
 		Pirus::Tag a("a", 1);
 		Pirus::Tag img("img", 0);
@@ -213,7 +214,25 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << a;
 
-		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\"><img src=\"test.jpg\" /></a>");
+		REQUIRE( a.to_text() == "<a style=\"color: #ffffff;\">\n\t<img src=\"test.jpg\" />\n</a>");
+		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\">\n\t<img src=\"test.jpg\" />\n</a>");
+	}
+
+	SECTION("operator << & to_text - few children")
+	{
+		Pirus::Tag a("a", 1);
+		Pirus::Tag b("b", 1);
+		b.add_child(Pirus::Tag("c",0));
+		a.add_child("Text");
+		Pirus::Tag d("d",1);
+		d.add_child(a);
+		d.add_child(b);
+
+		std::stringstream stream;
+		stream << d;
+
+		REQUIRE( d.to_text() == "<d>\n\t<a>\n\t\tText\n\t</a>\n\t<b>\n\t\t<c />\n\t</b>\n</d>");
+		REQUIRE(stream.str() == "<d>\n\t<a>\n\t\tText\n\t</a>\n\t<b>\n\t\t<c />\n\t</b>\n</d>");
 	}
 
 	SECTION("text child -add, not allowed by tag type")
@@ -236,11 +255,11 @@ TEST_CASE("Tag", "[tag]")
 		Pirus::Tag f("test", 1);
 		REQUIRE_NOTHROW(f.add_child("txt"));
 		REQUIRE(f.get_text() == "txt");
-		REQUIRE(f.count_children() == 0);
+		REQUIRE(f.count_children() == 1);
 
 		std::stringstream stream;
 		stream << f;
-		REQUIRE(stream.str() == "<test>txt</test>");
+		REQUIRE(stream.str() == "<test>\n\ttxt\n</test>");
 	}
 
 	SECTION("add child when text is added")

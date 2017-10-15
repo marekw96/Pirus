@@ -275,17 +275,6 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE(const_t.get_children()[1].get_name() == "a2");
 	}
 
-	SECTION("Level")
-	{
-		Pirus::Tag t("test",true);
-		REQUIRE(t.get_level() == 0);
-		t.add_child(Pirus::Tag("test2",true));
-		REQUIRE(t.get_children()[0].get_level() == 1);
-		t.get_children()[0].add_child(t);
-		REQUIRE(t.get_children()[0].get_children()[0].get_level() == 2);
-		REQUIRE(t.get_children()[0].get_children()[0].get_children()[0].get_level() == 3);
-	}
-
 	SECTION("CHILD_TYPE :: NONE")
 	{
 		Pirus::Tag t("test", true);

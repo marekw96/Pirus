@@ -197,7 +197,7 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << t;
 
-		REQUIRE( stream.str() == "<test><child /></test>");
+		REQUIRE( stream.str() == "<test>\n\t<child />\n</test>");
 	}
 
 	SECTION("operator << - children & attributes")
@@ -213,7 +213,23 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << a;
 
-		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\"><img src=\"test.jpg\" /></a>");
+		REQUIRE(stream.str() == "<a style=\"color: #ffffff;\">\n\t<img src=\"test.jpg\" />\n</a>");
+	}
+
+	SECTION("operator << - few children")
+	{
+		Pirus::Tag a("a", 1);
+		Pirus::Tag b("b", 1);
+		b.add_child(Pirus::Tag("c",0));
+		a.add_child("Text");
+		Pirus::Tag d("d",1);
+		d.add_child(a);
+		d.add_child(b);
+
+		std::stringstream stream;
+		stream << d;
+
+		REQUIRE(stream.str() == "<d>\n\t<a>\n\t\tText\n\t</a>\n\t<b>\n\t\t<c />\n\t</b>\n</d>");
 	}
 
 	SECTION("text child -add, not allowed by tag type")

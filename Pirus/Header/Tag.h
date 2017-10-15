@@ -36,6 +36,7 @@ namespace Pirus
 		size_t get_level() const;
 		Pirus::CHILD_TYPE get_type_of_children() const;
 		void clear();
+		text to_text() const;
 	
 		friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
 	private:

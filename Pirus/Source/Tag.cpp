@@ -159,6 +159,11 @@ namespace Pirus
 		this->clear_children();
 	}
 
+	text Tag::to_text() const
+	{
+		return text();
+	}
+
 	void Tag::prepare_name()
 	{
 	//tolower

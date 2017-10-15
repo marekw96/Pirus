@@ -10,8 +10,7 @@ namespace Pirus
 		m_allow_children(contains_content), 
 		m_attributes{}, 
 		m_children{},
-		m_text(),
-		m_level{0}
+		m_text()
 	{
 		this->prepare_name();
 	}
@@ -75,8 +74,6 @@ namespace Pirus
 		if(this->get_type_of_children() == Pirus::CHILD_TYPE::TEXT)
 			throw Pirus::AlreadyHasDiffrentChildType();
 
-		child.m_level = this->m_level + 1;
-		child.update_children_level();
 		this->m_children.emplace_back(child);
 
 	}
@@ -123,10 +120,6 @@ namespace Pirus
 		return this->m_children;
 	}
 
-	size_t Tag::get_level() const
-	{
-		return this->m_level;
-	}
 
 	Pirus::CHILD_TYPE Tag::get_type_of_children() const
 	{
@@ -168,18 +161,6 @@ namespace Pirus
 		size_t first = this->m_name.find_first_not_of(' ');
 		size_t last = this->m_name.find_last_not_of(' ');
 		this->m_name = this->m_name.substr(first, (last - first + 1));
-	}
-
-	void Tag::update_children_level()
-	{
-		if(this->m_children.size() == 0)
-			return;
-
-		for (auto& child : this->m_children)
-		{
-			child.m_level = this->m_level + 1;
-			child.update_children_level();
-		}
 	}
 
 	const string& Tag::get_name() const

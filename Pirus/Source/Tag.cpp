@@ -72,8 +72,6 @@ namespace Pirus
 		if(!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
 
-		if(this->get_type_of_children() == Pirus::CHILD_TYPE::TEXT)
-			throw Pirus::AlreadyHasDiffrentChildType();
 
 		this->m_children.emplace_back(child);
 
@@ -88,9 +86,6 @@ namespace Pirus
 	{
 		if (!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
-
-		if (this->get_type_of_children() == Pirus::CHILD_TYPE::TAG)
-			throw Pirus::AlreadyHasDiffrentChildType();
 
 		Tag tag("plain text", true);
 		tag.m_text = child;

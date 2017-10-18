@@ -11,7 +11,7 @@ namespace Pirus
 	class Tag
 	{
 	public:
-		explicit Tag(const string& name, bool contains_content);
+		explicit Tag(const string& name, Pirus::ALLOW_CHILDREN allow_children);
 		Tag(const Tag&) = default;
 		Tag(Tag&&) = default;
 		~Tag() = default;

@@ -5,9 +5,9 @@
 
 namespace Pirus
 {
-	Tag::Tag(const string& name, bool contains_content) 
+	Tag::Tag(const string& name, Pirus::ALLOW_CHILDREN allow_children)
 		: m_name(name), 
-		m_allow_children(contains_content), 
+		m_allow_children(allow_children == ALLOW_CHILDREN::YES?true:false), 
 		m_attributes{}, 
 		m_children{},
 		m_text(),

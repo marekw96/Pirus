@@ -9,4 +9,6 @@ namespace Pirus
 	using attribute = std::pair<string,string>;
 
 	enum class CHILD_TYPE{NOT_ALLOWED,NONE,TAG,TEXT};
+
+	enum class ALLOW_CHILDREN{YES,NO};
 }

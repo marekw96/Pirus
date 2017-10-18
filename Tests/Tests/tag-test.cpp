@@ -6,7 +6,7 @@ TEST_CASE("Tag", "[tag]")
 {
 	SECTION("c-tor")
 	{
-		Pirus::Tag test_tag("img",false);
+		Pirus::Tag test_tag("img",Pirus::ALLOW_CHILDREN::NO);
 
 		REQUIRE( test_tag.get_name() == "img");
 		REQUIRE( test_tag.children_allowed() == false);
@@ -15,14 +15,14 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("c-tor text transform")
 	{
-		Pirus::Tag t(" iMg ",false);
+		Pirus::Tag t(" iMg ", Pirus::ALLOW_CHILDREN::NO);
 		
 		REQUIRE(t.get_name() == "img");
 	}
 
 	SECTION("add attributes")
 	{
-		Pirus::Tag t("test",0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		t.add_attribute("style","color","#ffffff");
 
 		REQUIRE(t.get_attribute("style","color") == "#ffffff");
@@ -30,7 +30,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("getting vector of attributes")
 	{
-		Pirus::Tag t("test", 0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		t.add_attribute("style", "color", "#ffffff");
 		t.add_attribute("style", "text-align", "center");
 
@@ -41,7 +41,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("attributes - throw exception if not found")
 	{
-		Pirus::Tag t("test", 0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		t.add_attribute("style", "color", "#ffffff");
 
 		REQUIRE_THROWS(t.get_attribute("style","not_found"));
@@ -49,7 +49,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("getting vector of attributes")
 	{
-		Pirus::Tag t("test", 0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		t.add_attribute("style", "color", "#ffffff");
 		t.add_attribute("ng-repeat", "", "center");
 
@@ -62,7 +62,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("setting new value to already set one")
 	{
-		Pirus::Tag t("test", 0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		t.add_attribute("style", "color", "#ffffff");
 		//begin
 		std::vector<std::pair<std::string, std::string>> vector {{"color", "#ffffff"}};
@@ -79,7 +79,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("remove attribute")
 	{
-		Pirus::Tag t("test", 0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		t.add_attribute("style", "color", "#ffffff");
 
 		REQUIRE(t.get_attribute("style", "color") == "#ffffff");
@@ -91,7 +91,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << ostream& - only name, no content")
 	{
-		Pirus::Tag t("test", 0);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 
 		std::stringstream stream;
 		stream << t;
@@ -101,7 +101,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << ostream& - only name, empty content")
 	{
-		Pirus::Tag t("test", 1);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 
 		std::stringstream stream;
 		stream << t;
@@ -111,7 +111,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << ostream& - only name, empty content, one attribute")
 	{
-		Pirus::Tag t("test", 1);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		t.add_attribute("style", "color", "#ffffff");
 
 		std::stringstream stream;
@@ -122,7 +122,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << ostream& - only name, empty content, one attribute, multiple values")
 	{
-		Pirus::Tag t("test", 1);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		t.add_attribute("style", "color", "#ffffff");
 		t.add_attribute("style", "text-align", "center");
 		t.add_attribute("style", "border", "none");
@@ -135,7 +135,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << - name, empty content, two attributes")
 	{
-		Pirus::Tag t("test", 1);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		t.add_attribute("style", "color", "#ffffff");
 		t.add_attribute("on-click", "", "alert('aa')");
 
@@ -153,7 +153,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("attribute_exists")
 	{
-		Pirus::Tag t("test", 1);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		t.add_attribute("style", "color", "#ffffff");
 
 		REQUIRE(t.attribute_exists("style", "color") == true);
@@ -162,14 +162,14 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("add child")
 	{
-		Pirus::Tag t("test", 1);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 
 		REQUIRE(t.count_children() == 0);
 
-		REQUIRE_NOTHROW(t.add_child(Pirus::Tag("child",0)));
+		REQUIRE_NOTHROW(t.add_child(Pirus::Tag("child", Pirus::ALLOW_CHILDREN::NO)));
 		REQUIRE(t.count_children() == 1);
 
-		Pirus::Tag child("child2", 1);
+		Pirus::Tag child("child2", Pirus::ALLOW_CHILDREN::YES);
 		REQUIRE_NOTHROW(t.add_child(child));
 
 		REQUIRE(t.count_children() == 2);
@@ -177,10 +177,10 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("clear children")
 	{
-		Pirus::Tag t("test", 1);
-		t.add_child(Pirus::Tag("child", 0));
-		t.add_child(Pirus::Tag("child", 0));
-		t.add_child(Pirus::Tag("child", 0));
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
+		t.add_child(Pirus::Tag("child", Pirus::ALLOW_CHILDREN::NO));
+		t.add_child(Pirus::Tag("child", Pirus::ALLOW_CHILDREN::NO));
+		t.add_child(Pirus::Tag("child", Pirus::ALLOW_CHILDREN::NO));
 
 		REQUIRE(t.count_children() == 3);
 		t.clear_children();
@@ -191,8 +191,8 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << - children")
 	{
-		Pirus::Tag t("test", 1);
-		t.add_child(Pirus::Tag("child", 0));
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
+		t.add_child(Pirus::Tag("child", Pirus::ALLOW_CHILDREN::NO));
 
 		std::stringstream stream;
 		stream << t;
@@ -202,8 +202,8 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << - children & attributes")
 	{
-		Pirus::Tag a("a", 1);
-		Pirus::Tag img("img", 0);
+		Pirus::Tag a("a", Pirus::ALLOW_CHILDREN::YES);
+		Pirus::Tag img("img", Pirus::ALLOW_CHILDREN::NO);
 
 		img.add_attribute("src","","test.jpg");
 		a.add_attribute("style","color","#ffffff");
@@ -218,14 +218,14 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("text child -add, not allowed by tag type")
 	{
-		Pirus::Tag test("text", 0);
+		Pirus::Tag test("text", Pirus::ALLOW_CHILDREN::NO);
 		REQUIRE_THROWS(test.add_child("text"));
 	}
 
 	SECTION("text child -add if different child")
 	{
-		Pirus::Tag test("text", 0);
-		Pirus::Tag f("test", 1);
+		Pirus::Tag test("text", Pirus::ALLOW_CHILDREN::NO);
+		Pirus::Tag f("test", Pirus::ALLOW_CHILDREN::YES);
 		REQUIRE(f.get_text() == "");
 		REQUIRE_NOTHROW(f.add_child(test));
 		REQUIRE_THROWS(f.add_child("TEST"));
@@ -233,7 +233,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("text child - print")
 	{
-		Pirus::Tag f("test", 1);
+		Pirus::Tag f("test", Pirus::ALLOW_CHILDREN::YES);
 		REQUIRE_NOTHROW(f.add_child("txt"));
 		REQUIRE(f.get_text() == "txt");
 		REQUIRE(f.count_children() == 0);
@@ -245,17 +245,17 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("add child when text is added")
 	{
-		Pirus::Tag f("test", 1);
+		Pirus::Tag f("test", Pirus::ALLOW_CHILDREN::YES);
 		REQUIRE_NOTHROW(f.add_child("txt"));
 		REQUIRE(f.get_text() == "txt");
-		REQUIRE_THROWS(f.add_child(Pirus::Tag("text", 0)));
+		REQUIRE_THROWS(f.add_child(Pirus::Tag("text", Pirus::ALLOW_CHILDREN::NO)));
 	}
 
 	SECTION("get children")
 	{
-		Pirus::Tag t("t",1);
-		t.add_child(Pirus::Tag("a1", false));
-		t.add_child(Pirus::Tag("a2", false));
+		Pirus::Tag t("t", Pirus::ALLOW_CHILDREN::YES);
+		t.add_child(Pirus::Tag("a1", Pirus::ALLOW_CHILDREN::NO));
+		t.add_child(Pirus::Tag("a2", Pirus::ALLOW_CHILDREN::NO));
 
 		REQUIRE(t.count_children() == 2);
 		REQUIRE(t.get_children()[0].get_name() == "a1");
@@ -264,9 +264,9 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("get children - const")
 	{
-		Pirus::Tag t("t", 1);
-		t.add_child(Pirus::Tag("a1", false));
-		t.add_child(Pirus::Tag("a2", false));
+		Pirus::Tag t("t", Pirus::ALLOW_CHILDREN::YES);
+		t.add_child(Pirus::Tag("a1", Pirus::ALLOW_CHILDREN::NO));
+		t.add_child(Pirus::Tag("a2", Pirus::ALLOW_CHILDREN::NO));
 
 		const auto& const_t = t;
 
@@ -277,9 +277,9 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("Level")
 	{
-		Pirus::Tag t("test",true);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		REQUIRE(t.get_level() == 0);
-		t.add_child(Pirus::Tag("test2",true));
+		t.add_child(Pirus::Tag("test2", Pirus::ALLOW_CHILDREN::YES));
 		REQUIRE(t.get_children()[0].get_level() == 1);
 		t.get_children()[0].add_child(t);
 		REQUIRE(t.get_children()[0].get_children()[0].get_level() == 2);
@@ -288,7 +288,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("CHILD_TYPE :: NONE")
 	{
-		Pirus::Tag t("test", true);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
@@ -297,7 +297,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("CHILD_TYPE :: NOT_ALLOWED")
 	{
-		Pirus::Tag t("test", false);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
 		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
@@ -306,8 +306,8 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("CHILD_TYPE :: TAG")
 	{
-		Pirus::Tag t("test", true);
-		t.add_child(Pirus::Tag("child", false));
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
+		t.add_child(Pirus::Tag("child", Pirus::ALLOW_CHILDREN::NO));
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);
 		REQUIRE(t.get_type_of_children() == Pirus::CHILD_TYPE::TAG);
@@ -316,7 +316,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("CHILD_TYPE :: TEXT")
 	{
-		Pirus::Tag t("test", true);
+		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
 		t.add_child("txt");
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NONE);
 		REQUIRE_FALSE(t.get_type_of_children() == Pirus::CHILD_TYPE::NOT_ALLOWED);

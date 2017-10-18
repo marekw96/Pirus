@@ -220,11 +220,11 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("operator << & to_text - few children")
 	{
-		Pirus::Tag a("a", 1);
-		Pirus::Tag b("b", 1);
-		b.add_child(Pirus::Tag("c",0));
+		Pirus::Tag a("a", Pirus::ALLOW_CHILDREN::YES);
+		Pirus::Tag b("b", Pirus::ALLOW_CHILDREN::YES);
+		b.add_child(Pirus::Tag("c", Pirus::ALLOW_CHILDREN::NO));
 		a.add_child("Text");
-		Pirus::Tag d("d",1);
+		Pirus::Tag d("d", Pirus::ALLOW_CHILDREN::YES);
 		d.add_child(a);
 		d.add_child(b);
 
@@ -237,8 +237,8 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("to_text - empty tag")
 	{
-		Pirus::Tag a("a", 1);
-		a.add_child(Pirus::Tag("b", 1));
+		Pirus::Tag a("a", Pirus::ALLOW_CHILDREN::YES);
+		a.add_child(Pirus::Tag("b", Pirus::ALLOW_CHILDREN::YES));
 
 		REQUIRE(a.to_text() == "<a>\n\t<b></b>\n</a>");
 	}
@@ -247,15 +247,6 @@ TEST_CASE("Tag", "[tag]")
 	{
 		Pirus::Tag test("text", Pirus::ALLOW_CHILDREN::NO);
 		REQUIRE_THROWS(test.add_child("text"));
-	}
-
-	SECTION("text child -add if different child")
-	{
-		Pirus::Tag test("text", Pirus::ALLOW_CHILDREN::NO);
-		Pirus::Tag f("test", Pirus::ALLOW_CHILDREN::YES);
-		REQUIRE(f.get_text() == "");
-		REQUIRE_NOTHROW(f.add_child(test));
-		REQUIRE_THROWS(f.add_child("TEST"));
 	}
 
 	SECTION("text child - print")
@@ -268,14 +259,6 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << f;
 		REQUIRE(stream.str() == "<test>\n\ttxt\n</test>");
-	}
-
-	SECTION("add child when text is added")
-	{
-		Pirus::Tag f("test", Pirus::ALLOW_CHILDREN::YES);
-		REQUIRE_NOTHROW(f.add_child("txt"));
-		REQUIRE(f.get_text() == "txt");
-		REQUIRE_THROWS(f.add_child(Pirus::Tag("text", Pirus::ALLOW_CHILDREN::NO)));
 	}
 
 	SECTION("get children")

@@ -87,7 +87,7 @@ namespace Pirus
 		if (!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
 
-		Tag tag("plain text", true);
+		Tag tag("plain text", Pirus::ALLOW_CHILDREN::YES);
 		tag.m_text = child;
 		this->add_child(tag);
 	}

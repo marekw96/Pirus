@@ -14,10 +14,4 @@ namespace Pirus
 	public:
 		AttributeNotFound() : runtime_error("Attribute not found"){}
 	};
-
-	class AlreadyHasDiffrentChildType : public std::runtime_error
-	{
-	public:
-		AlreadyHasDiffrentChildType() : runtime_error("Tag already has diffrent type of child"){}
-	};
 }

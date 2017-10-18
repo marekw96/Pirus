@@ -241,15 +241,6 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE_THROWS(test.add_child("text"));
 	}
 
-	SECTION("text child -add if different child")
-	{
-		Pirus::Tag test("text", 0);
-		Pirus::Tag f("test", 1);
-		REQUIRE(f.get_text() == "");
-		REQUIRE_NOTHROW(f.add_child(test));
-		REQUIRE_THROWS(f.add_child("TEST"));
-	}
-
 	SECTION("text child - print")
 	{
 		Pirus::Tag f("test", 1);
@@ -260,14 +251,6 @@ TEST_CASE("Tag", "[tag]")
 		std::stringstream stream;
 		stream << f;
 		REQUIRE(stream.str() == "<test>\n\ttxt\n</test>");
-	}
-
-	SECTION("add child when text is added")
-	{
-		Pirus::Tag f("test", 1);
-		REQUIRE_NOTHROW(f.add_child("txt"));
-		REQUIRE(f.get_text() == "txt");
-		REQUIRE_THROWS(f.add_child(Pirus::Tag("text", 0)));
 	}
 
 	SECTION("get children")

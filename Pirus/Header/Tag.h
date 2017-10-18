@@ -46,5 +46,9 @@ namespace Pirus
 		text m_text;
 		
 		void prepare_name();
+
+		void open_tag_to_stream(std::ostream& stream, size_t level) const;
+		void children_to_stream(std::ostream& stream, size_t level) const;
+		void close_tag_to_stream(std::ostream& stream, size_t level) const;
 	};
 }

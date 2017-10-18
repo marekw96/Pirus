@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <exception>
 #include <sstream>
+#include <utility>
 
 namespace Pirus
 {
@@ -34,9 +35,11 @@ namespace Pirus
 
 	const string& Tag::get_attribute(const string& name, const string& key)
 	{
-		auto found = std::find_if(this->m_attributes[name].begin(), this->m_attributes[name].end(),[&](const auto& atr){ return atr.first == key;});
+		auto found = std::find_if(std::cbegin(this->m_attributes[name]),
+								 std::cend(this->m_attributes[name]),
+								 [&](const auto& atr){ return atr.first == key;});
 
-		if(found != this->m_attributes[name].end())
+		if(found != std::cend(this->m_attributes[name]))
 			return found->second;
 		else
 			throw Pirus::AttributeNotFound();
@@ -45,26 +48,29 @@ namespace Pirus
 	std::vector<string> Tag::get_attributes_names()
 	{
 		std::vector<string> names(this->m_attributes.size());
-		std::transform(this->m_attributes.begin(), this->m_attributes.end(), names.begin(),[](const auto& v){ return v.first;});
+		std::transform(std::cbegin(this->m_attributes), std::cend(this->m_attributes), std::begin(names),[](const auto& v){ return v.first;});
 		return names;
 	}
 
 	bool Tag::attribute_exists(const string& name, const string& key)
 	{
-		auto found = std::find_if(this->m_attributes[name].begin(), this->m_attributes[name].end(), [&] (const auto& atr) { return atr.first == key; });
-
-		if (found != this->m_attributes[name].end())
-			return true;
-		else
-			return false;
+		return std::cend(this->m_attributes[name]) != std::find_if(std::cbegin(this->m_attributes[name]),
+																	std::cend(this->m_attributes[name]), 
+																	[&] (const auto& atr) { return atr.first == key; });
 	}
 
 	bool Tag::remove_attribute(const string& name, const string& key)
 	{
-		auto old_size = this->m_attributes[name].size();
-		auto new_end = std::remove_if(this->m_attributes[name].begin(), this->m_attributes[name].end(), [&](const auto& v){ return v.first == key; });
-		this->m_attributes[name].erase(new_end,this->m_attributes[name].end());
-		return old_size != this->m_attributes[name].size();
+		auto new_end = std::remove_if(std::begin(this->m_attributes[name]), 
+										std::end(this->m_attributes[name]), 
+										[&](const auto& v){ return v.first == key; });
+
+		if(new_end != std::end(this->m_attributes[name]))
+		{
+				this->m_attributes[name].erase(new_end, std::end(this->m_attributes[name]));
+				return true;
+		}
+		return false;		
 	}
 
 	void Tag::add_child(Tag&& child)
@@ -72,9 +78,7 @@ namespace Pirus
 		if(!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
 
-
-		this->m_children.emplace_back(child);
-
+		this->m_children.emplace_back(std::move(child));
 	}
 
 	void Tag::add_child(const Tag& child)
@@ -87,9 +91,9 @@ namespace Pirus
 		if (!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
 
-		Tag tag("plain text", Pirus::ALLOW_CHILDREN::YES);
+		Tag tag("plain text", Pirus::ALLOW_CHILDREN::NO);
 		tag.m_text = child;
-		this->add_child(tag);
+		this->add_child(std::move(tag));
 	}
 
 	std::vector<Pirus::Tag>::size_type Tag::count_children() const
@@ -105,8 +109,11 @@ namespace Pirus
 
 	const text& Tag::get_text() const
 	{
-		auto find = std::find_if(this->m_children.begin(), this->m_children.end(), [](const auto& child){ return child.get_name() == "plain text"; });
-		if(find != this->m_children.end())
+		auto find = std::find_if(std::cbegin(this->m_children), 
+								std::cend(this->m_children), 
+								[](const auto& child){ return child.get_name() == "plain text"; });
+
+		if(find != std::cend(this->m_children))
 			return find->get_text();
 
 		return this->m_text;
@@ -167,55 +174,11 @@ namespace Pirus
 			return output.str();;
 		}
 
-		output << "<" << this->get_name();
-
-		for (const auto& attributes : this->m_attributes)
-		{
-			output << " " << attributes.first << "=\"";
-			for (const auto& attribute : attributes.second)
-			{
-				if (attribute.first == "")
-					output << attribute.second;
-				else
-					output << attribute.first << ": " << attribute.second << ";";
-			}
-			output << "\"";
-		}
-
-		if (this->children_allowed())
-		{
-			output << ">";
-
-			for (const auto& child : this->m_children)
-			{
-				output << '\n' << child.to_text(level+1);
-			}
-
-			if (this->get_type_of_children() != CHILD_TYPE::NONE)
-			{
-				output << '\n';
-				for (size_t it = 0; it < level; ++it)
-					output << '\t';
-			}
-			output << "</" << this->get_name() << ">";
-		}
-		else
-		{
-			output << " />";
-		}
+		this->open_tag_to_stream(output,level);
+		this->children_to_stream(output,level);
+		this->close_tag_to_stream(output,level);
 
 		return output.str();
-	}
-
-	void Tag::prepare_name()
-	{
-	//tolower
-		std::transform(this->m_name.begin(), this->m_name.end(), this->m_name.begin(), ::tolower);
-		
-	//trim
-		size_t first = this->m_name.find_first_not_of(' ');
-		size_t last = this->m_name.find_last_not_of(' ');
-		this->m_name = this->m_name.substr(first, (last - first + 1));
 	}
 
 	const string& Tag::get_name() const
@@ -225,8 +188,62 @@ namespace Pirus
 
 	std::ostream& operator<<(std::ostream& os, const Tag& tag)
 	{
-		os << tag.to_text();
+		return os << tag.to_text();
+	}
 
-		return os;
+	void Tag::prepare_name()
+	{
+		std::transform(std::cbegin(this->m_name), std::cend(this->m_name), std::begin(this->m_name), ::tolower);
+		
+		size_t first = this->m_name.find_first_not_of(" \t");
+		size_t last = this->m_name.find_last_not_of(" \t");
+		this->m_name = this->m_name.substr(first, (last - first + 1));
+	}
+
+	void Tag::open_tag_to_stream(std::ostream& stream, size_t level) const
+	{
+		stream << "<" << this->get_name();
+
+		for (const auto& attributes : this->m_attributes)
+		{
+			stream << " " << attributes.first << "=\"";
+			for (const auto& attribute : attributes.second)
+			{
+				if (attribute.first == "")
+					stream << attribute.second;
+				else
+					stream << attribute.first << ": " << attribute.second << ";";
+			}
+			stream << "\"";
+		}
+
+		if (this->children_allowed())
+			stream << ">";
+		else
+			stream << " />";
+	}
+
+	void Tag::children_to_stream(std::ostream& stream, size_t level) const
+	{
+		if (this->children_allowed())
+		{
+			for (const auto& child : this->m_children)
+			{
+				stream << '\n' << child.to_text(level + 1);
+			}
+
+			if (this->get_type_of_children() != CHILD_TYPE::NONE)
+			{
+				stream << '\n';
+				for (size_t it = 0; it < level; ++it)
+					stream << '\t';
+			}
+		}
+	}
+
+	void Tag::close_tag_to_stream(std::ostream & stream, size_t level) const
+	{
+		if (this->children_allowed())
+			stream << "</" << this->get_name() << ">";
 	}
 }

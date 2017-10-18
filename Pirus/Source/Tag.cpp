@@ -197,10 +197,11 @@ namespace Pirus
 			}
 
 			if (this->get_type_of_children() != CHILD_TYPE::NONE)
+			{
 				output << '\n';
-
-			for (size_t it = 0; it < level; ++it)
-				output << '\t';
+				for (size_t it = 0; it < level; ++it)
+					output << '\t';
+			}
 			output << "</" << this->get_name() << ">";
 		}
 		else

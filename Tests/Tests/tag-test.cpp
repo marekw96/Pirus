@@ -235,6 +235,14 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE(stream.str() == "<d>\n\t<a>\n\t\tText\n\t</a>\n\t<b>\n\t\t<c />\n\t</b>\n</d>");
 	}
 
+	SECTION("to_text - empty tag")
+	{
+		Pirus::Tag a("a", 1);
+		a.add_child(Pirus::Tag("b", 1));
+
+		REQUIRE(a.to_text() == "<a>\n\t<b></b>\n</a>");
+	}
+
 	SECTION("text child -add, not allowed by tag type")
 	{
 		Pirus::Tag test("text", 0);

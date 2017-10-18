@@ -73,4 +73,47 @@ TEST_CASE("Splitter", "[splitter]")
 
 		REQUIRE(fragments == correct_fragments);
 	}
+
+	SECTION("simple tag without content")
+	{
+		auto str = "<img src=\"image.png\" alt=\"desc\" />";
+
+		Pirus::Fragment a1;
+		a1.level = 0;
+		a1.type = Pirus::FRAGMENT_TYPE::TAG;
+		a1.value = "img";
+
+		Pirus::Fragment atr_name;
+		atr_name.level = 0;
+		atr_name.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME;
+		atr_name.value = "src";
+
+		Pirus::Fragment atr_value;
+		atr_value.level = 0;
+		atr_value.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE;
+		atr_value.value = "image.png";
+
+		Pirus::Fragment atr_name2;
+		atr_name2.level = 0;
+		atr_name2.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME;
+		atr_name2.value = "alt";
+
+		Pirus::Fragment atr_value2;
+		atr_value2.level = 0;
+		atr_value2.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE;
+		atr_value2.value = "desc";
+
+		Pirus::Fragment a2;
+		a2.level = 0;
+		a2.type = Pirus::FRAGMENT_TYPE::CLOSE_TAG;
+		a2.value = "/";
+
+		std::vector<Pirus::Fragment> correct_fragments = {a1,atr_name,atr_value,atr_name2,atr_value2,a2};
+
+		Pirus::Splitter s;
+		s(str);
+		auto& fragments = s.get_fragments();
+		REQUIRE(fragments.size() == correct_fragments.size());
+		REQUIRE(fragments == correct_fragments);
+	}
 }

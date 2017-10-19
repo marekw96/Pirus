@@ -11,7 +11,7 @@ namespace Pirus
 	{
 	public:
 		Splitter();
-		std::vector<Pirus::Fragment>& operator()(const string& code);
+		std::vector<Pirus::Fragment>& operator()(const text& code);
 		std::vector<Pirus::Fragment>& get_fragments();
 
 	private:

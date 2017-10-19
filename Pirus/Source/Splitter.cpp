@@ -9,7 +9,7 @@ Pirus::Splitter::Splitter() :
 	m_escape{false}
 {}
 
-std::vector<Pirus::Fragment>& Pirus::Splitter::operator()(const string & code)
+std::vector<Pirus::Fragment>& Pirus::Splitter::operator()(const text & code)
 {
 	for (auto sign : code)
 	{

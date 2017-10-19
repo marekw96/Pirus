@@ -15,7 +15,7 @@ TEST_CASE("Tag", "[tag]")
 
 	SECTION("c-tor text transform")
 	{
-		Pirus::Tag t(" iMg ", Pirus::ALLOW_CHILDREN::NO);
+		Pirus::Tag t(" iMg \t", Pirus::ALLOW_CHILDREN::NO);
 		
 		REQUIRE(t.get_name() == "img");
 	}
@@ -23,35 +23,24 @@ TEST_CASE("Tag", "[tag]")
 	SECTION("add attributes")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
-		t.add_attribute("style","color","#ffffff");
+		t.add_attribute("style","color: #ffffff");
 
-		REQUIRE(t.get_attribute("style","color") == "#ffffff");
-	}
-
-	SECTION("getting vector of attributes")
-	{
-		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
-		t.add_attribute("style", "color", "#ffffff");
-		t.add_attribute("style", "text-align", "center");
-
-		std::vector<std::pair<std::string,std::string>> vector{{"color", "#ffffff"},{"text-align","center"}};
-
-		REQUIRE(t.get_attributes("style") == vector);
+		REQUIRE(t.get_attribute("style") == "color: #ffffff");
 	}
 
 	SECTION("attributes - throw exception if not found")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
-		t.add_attribute("style", "color", "#ffffff");
+		t.add_attribute("style", "color: #ffffff");
 
-		REQUIRE_THROWS(t.get_attribute("style","not_found"));
+		REQUIRE_THROWS(t.get_attribute("style1"));
 	}
 
 	SECTION("getting vector of attributes")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
-		t.add_attribute("style", "color", "#ffffff");
-		t.add_attribute("ng-repeat", "", "center");
+		t.add_attribute("style", "color: #ffffff");
+		t.add_attribute("ng-repeat", "center");
 
 		auto atr = t.get_attributes_names();
 
@@ -60,33 +49,24 @@ TEST_CASE("Tag", "[tag]")
 		REQUIRE(std::any_of(atr.begin(), atr.end(), [] (const auto& el) { return el == "ng-repeat"; }));
 	}
 
-	SECTION("setting new value to already set one")
+	SECTION("adding new value to already set one")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
-		t.add_attribute("style", "color", "#ffffff");
-		//begin
-		std::vector<std::pair<std::string, std::string>> vector {{"color", "#ffffff"}};
-		REQUIRE(t.get_attributes("style") == vector);
+		t.add_attribute("style", "color: #ffffff;");
+		REQUIRE(t.get_attribute("style") == "color: #ffffff;");
 
-		//change color
-		t.add_attribute("style", "color", "#000000");
-		REQUIRE(t.get_attribute("style", "color") == "#000000");
-
-		//after editing
-		vector = {{"color", "#000000"}};
-		REQUIRE(t.get_attributes("style") == vector);
+		t.add_attribute("style", "text-align: center;");
+		REQUIRE(t.get_attribute("style") == "color: #ffffff;text-align: center;");
 	}
 
 	SECTION("remove attribute")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::NO);
-		t.add_attribute("style", "color", "#ffffff");
+		t.add_attribute("style", "color: #ffffff");
 
-		REQUIRE(t.get_attribute("style", "color") == "#ffffff");
-		REQUIRE(t.get_attributes("style").size() == 1u);
-		REQUIRE(t.remove_attribute("style", "color") == true);//remove
-		REQUIRE_THROWS(t.get_attribute("style","color"));
-		REQUIRE(t.get_attributes("style").size() == 0u);
+		REQUIRE(t.get_attribute("style") == "color: #ffffff");
+		REQUIRE(t.remove_attribute("style") == true);
+		REQUIRE_THROWS(t.get_attribute("style"));
 	}
 
 	SECTION("operator << ostream& - only name, no content")
@@ -112,7 +92,7 @@ TEST_CASE("Tag", "[tag]")
 	SECTION("operator << ostream& - only name, empty content, one attribute")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
-		t.add_attribute("style", "color", "#ffffff");
+		t.add_attribute("style", "color: #ffffff;");
 
 		std::stringstream stream;
 		stream << t;
@@ -123,9 +103,9 @@ TEST_CASE("Tag", "[tag]")
 	SECTION("operator << ostream& - only name, empty content, one attribute, multiple values")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
-		t.add_attribute("style", "color", "#ffffff");
-		t.add_attribute("style", "text-align", "center");
-		t.add_attribute("style", "border", "none");
+		t.add_attribute("style", "color: #ffffff;");
+		t.add_attribute("style", "text-align: center;");
+		t.add_attribute("style", "border: none;");
 
 		std::stringstream stream;
 		stream << t;
@@ -136,8 +116,8 @@ TEST_CASE("Tag", "[tag]")
 	SECTION("operator << - name, empty content, two attributes")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
-		t.add_attribute("style", "color", "#ffffff");
-		t.add_attribute("on-click", "", "alert('aa')");
+		t.add_attribute("style", "color: #ffffff;");
+		t.add_attribute("on-click", "alert('aa')");
 
 		std::stringstream stream;
 		stream << t;
@@ -154,10 +134,10 @@ TEST_CASE("Tag", "[tag]")
 	SECTION("attribute_exists")
 	{
 		Pirus::Tag t("test", Pirus::ALLOW_CHILDREN::YES);
-		t.add_attribute("style", "color", "#ffffff");
+		t.add_attribute("style", "color: #ffffff");
 
-		REQUIRE(t.attribute_exists("style", "color") == true);
-		REQUIRE(t.attribute_exists("style", "text-align") == false);
+		REQUIRE(t.attribute_exists("style") == true);
+		REQUIRE(t.attribute_exists("style2") == false);
 	}
 
 	SECTION("add child")
@@ -206,8 +186,8 @@ TEST_CASE("Tag", "[tag]")
 		Pirus::Tag a("a", Pirus::ALLOW_CHILDREN::YES);
 		Pirus::Tag img("img", Pirus::ALLOW_CHILDREN::NO);
 
-		img.add_attribute("src","","test.jpg");
-		a.add_attribute("style","color","#ffffff");
+		img.add_attribute("src", "test.jpg");
+		a.add_attribute("style","color: #ffffff;");
 
 		a.add_child(Pirus::Tag(img));
 

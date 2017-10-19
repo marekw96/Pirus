@@ -2,12 +2,10 @@
 #include "Exceptions.h"
 #include <algorithm>
 #include <exception>
-#include <sstream>
-#include <utility>
 
 namespace Pirus
 {
-	Tag::Tag(const string& name, Pirus::ALLOW_CHILDREN allow_children)
+	Tag::Tag(const text& name, Pirus::ALLOW_CHILDREN allow_children)
 		: m_name(name), 
 		m_allow_children(allow_children == ALLOW_CHILDREN::YES?true:false), 
 		m_attributes{}, 
@@ -22,52 +20,43 @@ namespace Pirus
 		return this->m_allow_children;
 	}
 
-	void Tag::add_attribute(const string& name, const string& key, const string& value)
+	void Tag::add_attribute(const text& name, const text& value)
 	{
-		this->remove_attribute(name,key);
-		this->m_attributes[name].push_back(attribute(key,value));
+		this->m_attributes[name].append(value);
 	}
 
-	const std::vector<attribute>& Tag::get_attributes(const string& name)
+	const text& Tag::get_attribute(const text& key) const
 	{
-		return this->m_attributes[name];
-	}
-
-	const string& Tag::get_attribute(const string& name, const string& key)
-	{
-		auto found = std::find_if(std::cbegin(this->m_attributes[name]),
-								 std::cend(this->m_attributes[name]),
-								 [&](const auto& atr){ return atr.first == key;});
-
-		if(found != std::cend(this->m_attributes[name]))
+		auto found = this->m_attributes.find(key);
+		if(std::cend(this->m_attributes) != found)
 			return found->second;
-		else
-			throw Pirus::AttributeNotFound();
+
+		throw Pirus::AttributeNotFound();
 	}
 
-	std::vector<string> Tag::get_attributes_names()
+	std::vector<text> Tag::get_attributes_names() const
 	{
-		std::vector<string> names(this->m_attributes.size());
-		std::transform(std::cbegin(this->m_attributes), std::cend(this->m_attributes), std::begin(names),[](const auto& v){ return v.first;});
+		std::vector<text> names(this->m_attributes.size());
+		std::transform(std::cbegin(this->m_attributes), 
+						std::cend(this->m_attributes),
+						std::begin(names),
+						[](const auto& v){ return v.first;});
+
 		return names;
 	}
 
-	bool Tag::attribute_exists(const string& name, const string& key)
+	bool Tag::attribute_exists(const text& name)
 	{
-		return std::cend(this->m_attributes[name]) != std::find_if(std::cbegin(this->m_attributes[name]),
-																	std::cend(this->m_attributes[name]), 
-																	[&] (const auto& atr) { return atr.first == key; });
+		return std::cend(this->m_attributes) != this->m_attributes.find(name);
 	}
 
-	bool Tag::remove_attribute(const string& name, const string& key)
+	bool Tag::remove_attribute(const text& name)
 	{
-		auto new_end = std::remove_if(std::begin(this->m_attributes[name]), 
-										std::end(this->m_attributes[name]), 
-										[&](const auto& v){ return v.first == key; });
+		auto new_end = this->m_attributes.find(name);
 
-		if(new_end != std::end(this->m_attributes[name]))
+		if(new_end != std::cend(this->m_attributes))
 		{
-				this->m_attributes[name].erase(new_end, std::end(this->m_attributes[name]));
+				this->m_attributes.erase(new_end);
 				return true;
 		}
 		return false;		
@@ -83,10 +72,13 @@ namespace Pirus
 
 	void Tag::add_child(const Tag& child)
 	{
-		this->add_child(Tag(child));
+		if (!this->children_allowed())
+			throw Pirus::ChildNotAllowed();
+
+		this->m_children.emplace_back(child);
 	}
 
-	void Tag::add_child(const text & child)
+	void Tag::add_child(const text& child)
 	{
 		if (!this->children_allowed())
 			throw Pirus::ChildNotAllowed();
@@ -139,14 +131,7 @@ namespace Pirus
 		
 		if (this->get_text().size() == 0)
 		{
-			if(this->count_children() == 0)
-			{
-				return Pirus::CHILD_TYPE::NONE;
-			}
-			else
-			{
-				return Pirus::CHILD_TYPE::TAG;
-			}
+			return this->count_children() == 0? Pirus::CHILD_TYPE::NONE : Pirus::CHILD_TYPE::TAG;
 		}
 		else
 		{
@@ -181,7 +166,7 @@ namespace Pirus
 		return output.str();
 	}
 
-	const string& Tag::get_name() const
+	const text& Tag::get_name() const
 	{
 		return this->m_name;
 	}
@@ -204,18 +189,7 @@ namespace Pirus
 	{
 		stream << "<" << this->get_name();
 
-		for (const auto& attributes : this->m_attributes)
-		{
-			stream << " " << attributes.first << "=\"";
-			for (const auto& attribute : attributes.second)
-			{
-				if (attribute.first == "")
-					stream << attribute.second;
-				else
-					stream << attribute.first << ": " << attribute.second << ";";
-			}
-			stream << "\"";
-		}
+		this->attributes_to_stream(stream);
 
 		if (this->children_allowed())
 			stream << ">";
@@ -245,5 +219,13 @@ namespace Pirus
 	{
 		if (this->children_allowed())
 			stream << "</" << this->get_name() << ">";
+	}
+
+	void Tag::attributes_to_stream(std::ostream & stream) const
+	{
+		for (const auto attributes : this->m_attributes)
+		{
+			stream << " " << attributes.first << "=\"" <<attributes.second << "\"";
+		}
 	}
 }

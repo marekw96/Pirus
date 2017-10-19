@@ -1,30 +1,29 @@
 #pragma once
 #include "Constants.h"
-#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 namespace Pirus
 {
 	class Tag
 	{
 	public:
-		explicit Tag(const string& name, Pirus::ALLOW_CHILDREN allow_children);
+		explicit Tag(const text& name, Pirus::ALLOW_CHILDREN allow_children);
 		Tag(const Tag&) = default;
 		Tag(Tag&&) = default;
 		~Tag() = default;
 		Tag& operator=(const Tag&) = default;
 		Tag& operator=(Tag&&) = default;
-		const string& get_name() const;
+		const text& get_name() const;
 		bool children_allowed() const;
-		void add_attribute(const string& name, const string& key, const string& value);
-		const std::vector<attribute>& get_attributes(const string& name);
-		const string& get_attribute(const string& name, const string& key);
-		std::vector<string> get_attributes_names();
-		bool attribute_exists(const string& name, const string& key);
-		bool remove_attribute(const string& name, const string& key);
+		void add_attribute(const text& name, const text& value);
+		const text& get_attribute(const text& key) const;
+		std::vector<text> get_attributes_names() const;
+		bool attribute_exists(const text& name);
+		bool remove_attribute(const text& name);
 		void add_child(Tag&& child);
 		void add_child(const Tag& child);
 		void add_child(const text& child);
@@ -40,8 +39,8 @@ namespace Pirus
 		friend std::ostream& operator<<(std::ostream& os, const Tag& tag);
 	private:
 		bool m_allow_children;
-		string m_name;
-		std::unordered_map<string,std::vector<attribute>> m_attributes;
+		text m_name;
+		std::unordered_map<text, text> m_attributes;
 		std::vector<Pirus::Tag> m_children;
 		text m_text;
 		
@@ -50,5 +49,6 @@ namespace Pirus
 		void open_tag_to_stream(std::ostream& stream, size_t level) const;
 		void children_to_stream(std::ostream& stream, size_t level) const;
 		void close_tag_to_stream(std::ostream& stream, size_t level) const;
+		void attributes_to_stream(std::ostream& stream) const;
 	};
 }

@@ -19,6 +19,14 @@ TEST_CASE("Fragment", "[fragment]")
 		REQUIRE(a == b);
 		b.level = 1;
 		REQUIRE_FALSE(a == b);
+	}
 
+	SECTION("c-tor with params")
+	{
+		Pirus::Fragment a("test", 1,Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME);
+		
+		REQUIRE(a.level == 1);
+		REQUIRE(a.type == Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME);
+		REQUIRE(a.value == "test");
 	}
 }

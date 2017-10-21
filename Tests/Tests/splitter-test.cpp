@@ -116,4 +116,24 @@ TEST_CASE("Splitter", "[splitter]")
 		REQUIRE(fragments.size() == correct_fragments.size());
 		REQUIRE(fragments == correct_fragments);
 	}
+
+	SECTION("tag with text")
+	{
+		auto str = "<div><img src=\"file.jpg\" /></div>";
+
+		std::vector<Pirus::Fragment> correct_fragment{};
+		correct_fragment.emplace_back(Pirus::Fragment("div", 0, Pirus::FRAGMENT_TYPE::TAG));
+		correct_fragment.emplace_back(Pirus::Fragment("img", 1, Pirus::FRAGMENT_TYPE::TAG));
+		correct_fragment.emplace_back(Pirus::Fragment("src", 1, Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME));
+		correct_fragment.emplace_back(Pirus::Fragment("file.jpg", 1, Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE));
+		correct_fragment.emplace_back(Pirus::Fragment("/", 1, Pirus::FRAGMENT_TYPE::CLOSE_TAG));
+		correct_fragment.emplace_back(Pirus::Fragment("div", 0, Pirus::FRAGMENT_TYPE::CLOSE_TAG));
+
+		Pirus::Splitter s;
+		s(str);
+		auto& fragments = s.get_fragments();
+		REQUIRE(fragments.size() == correct_fragment.size());
+		REQUIRE(fragments == correct_fragment);
+
+	}
 }

@@ -23,6 +23,8 @@ namespace Pirus
 		size_t level;
 		FRAGMENT_TYPE type;
 
+		Fragment();
+		Fragment(const text& value, size_t level, FRAGMENT_TYPE type);
 		bool operator==(const Fragment& f) const;
 	};
 

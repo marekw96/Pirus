@@ -50,5 +50,7 @@ namespace Pirus
 		void children_to_stream(std::ostream& stream, size_t level) const;
 		void close_tag_to_stream(std::ostream& stream, size_t level) const;
 		void attributes_to_stream(std::ostream& stream) const;
+
+	friend class TagBuilder;
 	};
 }

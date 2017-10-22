@@ -7,6 +7,18 @@ TEST_CASE("tagbuilder", "[tag builder]")
 {
 	Pirus::TagBuilder builder;
 
+	SECTION("has name == false")
+	{
+		builder.clear();
+		REQUIRE(builder.has_name() == false);
+	}
+
+	SECTION("has name == true")
+	{
+		builder.clear().set_name("test_tag");
+		REQUIRE(builder.has_name() == true);
+	}
+
 	SECTION("build without name")
 	{
 		builder.clear();

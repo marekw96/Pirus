@@ -16,6 +16,9 @@ namespace Pirus
 		TagBuilder& allow_children(Pirus::ALLOW_CHILDREN allow);
 		TagBuilder& set_attribute(const text& name, const text& value);
 		TagBuilder& clear();
+		bool has_name();
+
+		text& get_name();
 
 		Tag build();
 

@@ -46,6 +46,16 @@ Pirus::TagBuilder & Pirus::TagBuilder::clear()
 	return *this;
 }
 
+bool Pirus::TagBuilder::has_name()
+{
+	return !this->m_name.empty();
+}
+
+Pirus::text & Pirus::TagBuilder::get_name()
+{
+	return this->m_name;
+}
+
 Pirus::Tag Pirus::TagBuilder::build()
 {
 	if(this->m_name.empty())

@@ -50,12 +50,12 @@ TEST_CASE("Splitter", "[splitter]")
 		a1.value = "a";
 
 		Pirus::Fragment atr_name;
-		atr_name.level = 0;
+		atr_name.level = 1;
 		atr_name.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME;
 		atr_name.value = "href";
 
 		Pirus::Fragment atr_value;
-		atr_value.level = 0;
+		atr_value.level = 1;
 		atr_value.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE;
 		atr_value.value = "index.html";
 
@@ -84,22 +84,22 @@ TEST_CASE("Splitter", "[splitter]")
 		a1.value = "img";
 
 		Pirus::Fragment atr_name;
-		atr_name.level = 0;
+		atr_name.level = 1;
 		atr_name.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME;
 		atr_name.value = "src";
 
 		Pirus::Fragment atr_value;
-		atr_value.level = 0;
+		atr_value.level = 1;
 		atr_value.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE;
 		atr_value.value = "image.png";
 
 		Pirus::Fragment atr_name2;
-		atr_name2.level = 0;
+		atr_name2.level = 1;
 		atr_name2.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME;
 		atr_name2.value = "alt";
 
 		Pirus::Fragment atr_value2;
-		atr_value2.level = 0;
+		atr_value2.level = 1;
 		atr_value2.type = Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE;
 		atr_value2.value = "desc";
 
@@ -124,8 +124,8 @@ TEST_CASE("Splitter", "[splitter]")
 		std::vector<Pirus::Fragment> correct_fragment{};
 		correct_fragment.emplace_back(Pirus::Fragment("div", 0, Pirus::FRAGMENT_TYPE::TAG));
 		correct_fragment.emplace_back(Pirus::Fragment("img", 1, Pirus::FRAGMENT_TYPE::TAG));
-		correct_fragment.emplace_back(Pirus::Fragment("src", 1, Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME));
-		correct_fragment.emplace_back(Pirus::Fragment("file.jpg", 1, Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE));
+		correct_fragment.emplace_back(Pirus::Fragment("src", 2, Pirus::FRAGMENT_TYPE::ATTRIBUTE_NAME));
+		correct_fragment.emplace_back(Pirus::Fragment("file.jpg", 2, Pirus::FRAGMENT_TYPE::ATTRIBUTE_VALUE));
 		correct_fragment.emplace_back(Pirus::Fragment("/", 1, Pirus::FRAGMENT_TYPE::CLOSE_TAG));
 		correct_fragment.emplace_back(Pirus::Fragment("div", 0, Pirus::FRAGMENT_TYPE::CLOSE_TAG));
 
@@ -134,6 +134,34 @@ TEST_CASE("Splitter", "[splitter]")
 		auto& fragments = s.get_fragments();
 		REQUIRE(fragments.size() == correct_fragment.size());
 		REQUIRE(fragments == correct_fragment);
+	}
 
+	SECTION("parse to tags")
+	{
+		auto str = "<div>text</div>";
+
+		Pirus::Splitter splitter;
+		splitter.set_content(str);
+
+		splitter.parse_to_fragments();
+		auto& tags = splitter.parse_to_tags();
+
+		REQUIRE(tags.size() == 1);
+
+		auto& tag = tags[0];
+		REQUIRE(tag.get_text() == "text");
+	}
+
+	SECTION("parse to tags2")
+	{
+		Pirus::text html = "<html><div><span class=\"dupa\">123</span>aa<img src=\"aa.png\" />bb</div><img src=\"aa.jpng\" /><a>1234</a></html>";
+
+		Pirus::Splitter splitter;
+		splitter.set_content(html);
+		splitter.parse_to_fragments();
+		splitter.parse_to_tags();
+		auto& tag = splitter.get_tags()[0];
+
+		REQUIRE(tag.to_text() == "<html>\n\t<div>\n\t\t<span class=\"dupa\">\n\t\t\t123\n\t\t</span>\n\t\taa\n\t\t<img src=\"aa.png\" />\n\t\tbb\n\t</div>\n\t<img src=\"aa.jpng\" />\n\t<a>\n\t\t1234\n\t</a>\n</html>");
 	}
 }

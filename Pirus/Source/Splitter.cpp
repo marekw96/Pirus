@@ -75,7 +75,7 @@ std::vector<Pirus::Tag>& Pirus::Splitter::parse_to_tags()
 
 	size_t last_level = 0U;
 
-	std::vector<Tag*> parents(this->m_max_level, nullptr);
+	std::vector<Tag*> parents(this->m_max_level+1, nullptr);
 
 	for (const auto& fragment : this->m_fragments)
 	{
@@ -100,6 +100,103 @@ std::vector<Pirus::Tag>& Pirus::Splitter::parse_to_tags()
 	}
 
 	return this->m_tags;
+}
+
+void Pirus::Splitter::parse_tag_attribute_name(TagBuilder& builder, std::pair<text, text>& attribute, const Fragment& fragment)
+{
+	attribute.first = fragment.value;
+}
+
+void Pirus::Splitter::parse_tag_attribute_value(TagBuilder& builder, std::pair<text, text>& attribute, const Fragment& fragment)
+{
+	attribute.second = fragment.value;
+	builder.set_attribute(attribute.first, attribute.second);
+}
+
+Pirus::Tag * Pirus::Splitter::parse_tag_tag(TagBuilder& builder, const Fragment& fragment, std::vector<Tag*>& parents, Tag* parent, size_t& last_level)
+{
+	if (builder.has_name())
+	{
+		if (last_level == 0)
+		{
+			this->m_tags.emplace_back(builder.build());
+			parent = &this->m_tags.back();
+		}
+		else
+		{
+			parent->add_child(builder.build());
+			parent = &parent->get_children().back();
+		}
+
+
+		parents[fragment.level] = parent;
+		last_level = fragment.level;
+		builder.clear();
+	}
+	builder.set_name(fragment.value);
+
+	return parent;
+}
+
+Pirus::Tag * Pirus::Splitter::parse_tag_close(TagBuilder & builder, const Fragment & fragment, std::vector<Tag*>& parents, Tag * parent, size_t & last_level)
+{
+	if (fragment.value == "/")
+	{
+		builder.allow_children(ALLOW_CHILDREN::NO);
+		if (last_level == 0)
+		{
+			this->m_tags.emplace_back(builder.build());
+		}
+		else
+		{
+			parent->add_child(builder.build());
+		}
+	}
+	else
+	{
+		if (fragment.level != 0)
+			parent = parents[fragment.level];
+		else
+			parent = parents[0];
+	}
+
+	builder.clear();
+
+	return parent;
+}
+
+Pirus::Tag * Pirus::Splitter::parse_tag_text(TagBuilder & builder, const Fragment & fragment, std::vector<Tag*>& parents, Tag * parent, size_t & last_level)
+{
+	if (builder.has_name())
+	{
+		auto tag = builder.build();
+		tag.add_child(fragment.value);
+		if (last_level == 0)
+		{
+			this->m_tags.emplace_back(std::move(tag));
+		}
+		else
+		{
+			parent->add_child(std::move(tag));
+		}
+		builder.clear();
+	}
+	else
+	{
+		auto tag = Tag("plain text", ALLOW_CHILDREN::YES);
+		tag.add_child(fragment.value);
+		if (last_level == 0)
+		{
+			this->m_tags.emplace_back(std::move(tag));
+		}
+		else
+		{
+			parent->add_child(std::move(tag));
+		}
+		builder.clear();
+	}
+
+	return parent;
 }
 
 std::vector<Pirus::Tag>& Pirus::Splitter::operator()(const text & code)
@@ -183,104 +280,6 @@ Pirus::Fragment Pirus::Splitter::make_fragment()
 	this->m_max_level = std::max(this->m_max_level, this->m_level);
 
 	return f;
-}
-
-void Pirus::Splitter::parse_tag_attribute_name(TagBuilder& builder, std::pair<text, text>& attribute, const Fragment& fragment)
-{
-	attribute.first = fragment.value;
-}
-
-void Pirus::Splitter::parse_tag_attribute_value(TagBuilder& builder, std::pair<text, text>& attribute, const Fragment& fragment)
-{
-	attribute.second = fragment.value;
-	builder.set_attribute(attribute.first, attribute.second);
-}
-
-Pirus::Tag * Pirus::Splitter::parse_tag_tag(TagBuilder& builder, const Fragment& fragment, std::vector<Tag*>& parents, Tag* parent, size_t& last_level)
-{
-	if (builder.has_name())
-	{
-		if (last_level == 0)
-		{
-			this->m_tags.emplace_back(builder.build());
-			parent = &this->m_tags.back();
-		}
-		else
-		{
-			parent->add_child(builder.build());
-			parent = &parent->get_children().back();
-		}
-
-		parents[last_level] = parent;
-		last_level = fragment.level;
-		builder.clear();
-	}
-	builder.set_name(fragment.value);
-
-	return parent;
-}
-
-Pirus::Tag * Pirus::Splitter::parse_tag_close(TagBuilder & builder, const Fragment & fragment, std::vector<Tag*>& parents, Tag * parent, size_t & last_level)
-{
-	if (fragment.value == "/")
-	{
-		builder.allow_children(ALLOW_CHILDREN::NO);
-		if (last_level == 0)
-		{
-			this->m_tags.emplace_back(builder.build());
-		}
-		else
-		{
-			parent->add_child(builder.build());
-		}
-	}
-	else
-	{
-		if (fragment.level != 0)
-			parent = parents[fragment.level - 1];
-		else
-			parent = parents[0];
-	}
-
-	builder.clear();
-
-	return parent;
-}
-
-Pirus::Tag * Pirus::Splitter::parse_tag_text(TagBuilder & builder, const Fragment & fragment, std::vector<Tag*>& parents, Tag * parent, size_t & last_level)
-{
-	if (builder.has_name())
-	{
-		auto tag = builder.build();
-		tag.add_child(fragment.value);
-		if (last_level == 0)
-		{
-			this->m_tags.emplace_back(std::move(tag));
-		}
-		else
-		{
-			parent->add_child(std::move(tag));
-		}
-		last_level = fragment.level;
-		builder.clear();
-	}
-	else
-	{
-		auto tag = Tag("plain text", ALLOW_CHILDREN::YES);
-		tag.add_child(fragment.value);
-		if (last_level == 0)
-		{
-			this->m_tags.emplace_back(std::move(tag));
-		}
-		else
-		{
-			parent->add_child(std::move(tag));
-		}
-		last_level = fragment.level;
-		builder.clear();
-	}
-
-	return parent;
 }
 
 template<typename T>

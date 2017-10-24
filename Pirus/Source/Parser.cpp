@@ -2,6 +2,8 @@
 
 #include "Splitter.h"
 
+#include <iostream>
+
 std::vector<Pirus::Tag> Pirus::parse(text content)
 {
 	Pirus::Splitter splitter;

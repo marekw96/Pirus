@@ -1,5 +1,7 @@
 #pragma once
 
+#include <sstream>
+
 #include "Definitions.h"
 #include "Tag.h"
 
@@ -10,11 +12,16 @@ namespace Pirus
 	public:
 		TagFormatter(const Pirus::Tag& tag);
 
-		const Pirus::text& format() const;
+		const Pirus::text& to_text();
 
 		virtual ~TagFormatter() = default;
 
 	private:
+		void generate_output();
+		void build_front(const Pirus::Tag& tag);
+		void build_end_of_single_tag();
+		Pirus::text transform_tag_name(std::wstring_view tag_name);
+
 		const Pirus::Tag& tag_to_format;
 
 		Pirus::text indention;
@@ -30,7 +37,7 @@ namespace Pirus
 		Pirus::FORMAT_TEXT format_attribute_value;
 
 		Pirus::text generated_output;
-
+		std::wstringstream builder;
 	};
 
 }

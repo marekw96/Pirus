@@ -1,9 +1,8 @@
-#include "..\Tag.h"
-
-#include <algorithm>
+#include "../Tag.h"
+#include "../Exceptions.h"
 
 Pirus::Tag::Tag(const Pirus::text& name, Pirus::ALLOW_CHILDREN allow_children)
-	: name{name}, allow_children{allow_children}
+	: name{name}, allow_children{allow_children}, attributes{}, children{}
 {}
 
 const Pirus::text& Pirus::Tag::get_name() const
@@ -46,4 +45,17 @@ std::vector<Pirus::text> Pirus::Tag::get_attributes_names() const
 	}
 
 	return names;
+}
+
+void Pirus::Tag::add_child(const Pirus::Tag& child)
+{
+	if(allow_children != Pirus::ALLOW_CHILDREN::YES)
+		throw Pirus::ChildrenNotAllowed{};
+
+	children.emplace_back(child);
+}
+
+const std::vector<Pirus::Tag>& Pirus::Tag::get_children() const
+{
+	return children;
 }

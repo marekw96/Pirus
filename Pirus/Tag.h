@@ -2,6 +2,7 @@
 
 #include "Definitions.h"
 #include <optional>
+#include <vector>
 
 namespace Pirus
 {
@@ -11,9 +12,12 @@ namespace Pirus
 		Tag(const Pirus::text& name, Pirus::ALLOW_CHILDREN allow_children);
 	
 		const Pirus::text& get_name() const;
+		bool are_children_allowed() const;
 
 		std::optional<Pirus::text> get_attribute(const Pirus::text& name) const;
 		void set_attribute(const Pirus::text& attribute_name, const Pirus::text& value);
+		void remove_attribute(const Pirus::text& attribute_name);
+		std::vector<Pirus::text> get_attributes_names() const;
 	
 		virtual ~Tag() = default;
 

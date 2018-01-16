@@ -2,8 +2,8 @@
 
 #include "gtest\gtest.h"
 
-#include "..\Pirus\Tag.h"
-#include "Exceptions.h"
+#include "Pirus\Tag.h"
+#include "Pirus\Exceptions.h"
 
 TEST(get_name, constructor)
 {

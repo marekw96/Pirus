@@ -17,10 +17,14 @@ namespace Pirus
 		virtual ~TagFormatter() = default;
 
 	private:
-		void generate_output();
+		void generate_output(const Pirus::Tag& tag);
+		void build_new_line_and_indetions(unsigned level);
 		void build_front(const Pirus::Tag& tag);
+		void build_attributes(const Pirus::Tag& tag);
 		void build_end_of_single_tag();
-		Pirus::text transform_tag_name(std::wstring_view tag_name);
+		void build_close_of_container_tag();
+		void build_end_of_container_tag(const Pirus::Tag& tag);
+		Pirus::text transform_by(std::wstring_view tag_name, Pirus::FORMAT_TEXT format_type);
 
 		const Pirus::Tag& tag_to_format;
 

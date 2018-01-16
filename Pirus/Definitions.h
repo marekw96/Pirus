@@ -14,7 +14,7 @@ namespace Pirus
 	namespace DefaultFormatterOptions
 	{
 		constexpr auto indention = L"       ";
-		constexpr auto new_line = L"/n";
+		constexpr auto new_line = L"\n";
 		constexpr auto open_tag = L"<";
 		constexpr auto close_tag = L">";
 		constexpr auto single_tag_close_mark = L"/";

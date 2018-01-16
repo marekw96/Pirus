@@ -1,6 +1,8 @@
 #pragma once
 
 #include <sstream>
+#include <utility>
+#include <queue>
 
 #include "Definitions.h"
 #include "Tag.h"
@@ -18,6 +20,8 @@ namespace Pirus
 
 	private:
 		void generate_output(const Pirus::Tag& tag);
+		std::pair<std::queue<const Pirus::Tag*>, unsigned> build_open_tags(const Pirus::Tag& tag);
+		void build_close_tags(std::queue<const Pirus::Tag*>& to_close, unsigned level);
 		void build_new_line_and_indetions(unsigned level);
 		void build_front(const Pirus::Tag& tag);
 		void build_attributes(const Pirus::Tag& tag);

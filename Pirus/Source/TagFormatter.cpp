@@ -2,20 +2,19 @@
 
 #include <cctype>
 #include <algorithm>
-#include <queue>
 
 Pirus::TagFormatter::TagFormatter(const Pirus::Tag& tag)
 	: tag_to_format(tag),
-	indention{Pirus::DefaultFormatterOptions::indention},
-	new_line{Pirus::DefaultFormatterOptions::new_line},
-	open_tag{Pirus::DefaultFormatterOptions::open_tag},
-	close_tag{Pirus::DefaultFormatterOptions::close_tag},
-	single_tag_close_mark{Pirus::DefaultFormatterOptions::single_tag_close_mark},
-	container_tag_close_mark{Pirus::DefaultFormatterOptions::container_tag_close_mark},
-	attribute_restraint_mark{Pirus::DefaultFormatterOptions::attribute_restraint_mark},
-	format_tag_name{Pirus::DefaultFormatterOptions::format_tag_name},
-	format_attribute_name{Pirus::DefaultFormatterOptions::format_attribute_name},
-	format_attribute_value{Pirus::DefaultFormatterOptions::format_attribute_value}
+	indention{ L"       " },
+	new_line{ L"\n" },
+	open_tag{ L"<" },
+	close_tag{ L">" },
+	single_tag_close_mark{ L"/" },
+	container_tag_close_mark{ L"/" },
+	attribute_restraint_mark{ L"\"" },
+	format_tag_name{ Pirus::FORMAT_TEXT::LOWERCASE },
+	format_attribute_name{ Pirus::FORMAT_TEXT::LOWERCASE },
+	format_attribute_value{ Pirus::FORMAT_TEXT::SKIP }
 {}
 
 const Pirus::text & Pirus::TagFormatter::to_text()
@@ -27,6 +26,14 @@ const Pirus::text & Pirus::TagFormatter::to_text()
 }
 
 void Pirus::TagFormatter::generate_output(const Pirus::Tag& tag)
+{
+	auto to_close_and_level = build_open_tags(tag);
+	build_close_tags(to_close_and_level.first, to_close_and_level.second);
+	
+	generated_output = builder.str();
+}
+
+std::pair<std::queue<const Pirus::Tag*>, unsigned> Pirus::TagFormatter::build_open_tags(const Pirus::Tag& tag)
 {
 	std::queue<const Pirus::Tag*> to_print;
 	std::queue<const Pirus::Tag*> to_close;
@@ -51,13 +58,20 @@ void Pirus::TagFormatter::generate_output(const Pirus::Tag& tag)
 		else
 		{
 			build_close_of_container_tag();
-			
+
 			for (const auto& child : actual->get_children())
 				to_print.push(&child);
 
 			to_close.push(actual);
 		}
 	}
+
+	return std::make_pair(to_close, level);
+}
+
+void Pirus::TagFormatter::build_close_tags(std::queue<const Pirus::Tag*>& to_close, unsigned level)
+{
+	const Pirus::Tag* actual = nullptr;
 
 	while (to_close.size())
 	{
@@ -68,10 +82,9 @@ void Pirus::TagFormatter::generate_output(const Pirus::Tag& tag)
 			builder << new_line;
 		else
 			build_new_line_and_indetions(level);
+
 		build_end_of_container_tag(*actual);
 	}
-	
-	generated_output = builder.str();
 }
 
 void Pirus::TagFormatter::build_new_line_and_indetions(unsigned level)

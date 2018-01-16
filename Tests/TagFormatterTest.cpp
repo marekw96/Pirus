@@ -70,3 +70,4 @@ TEST(container_tag_with_single_tag_child, tag_formatter)
 
 	ASSERT_EQ(output, correct);
 }
+

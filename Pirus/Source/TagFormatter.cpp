@@ -17,6 +17,12 @@ Pirus::TagFormatter::TagFormatter(const Pirus::Tag& tag)
 	format_attribute_value{ Pirus::FORMAT_TEXT::SKIP }
 {}
 
+void Pirus::TagFormatter::set_format_tag_name(Pirus::FORMAT_TEXT format_type)
+{
+	format_tag_name = format_type;
+	clear_buffor();
+}
+
 const Pirus::text & Pirus::TagFormatter::to_text()
 {
 	if(generated_output.empty())
@@ -25,67 +31,26 @@ const Pirus::text & Pirus::TagFormatter::to_text()
 	return generated_output;
 }
 
-void Pirus::TagFormatter::generate_output(const Pirus::Tag& tag)
+void Pirus::TagFormatter::generate_output(const Pirus::Tag& tag, unsigned level)
 {
-	auto to_close_and_level = build_open_tags(tag);
-	build_close_tags(to_close_and_level.first, to_close_and_level.second);
-	
-	generated_output = builder.str();
-}
-
-std::pair<std::queue<const Pirus::Tag*>, unsigned> Pirus::TagFormatter::build_open_tags(const Pirus::Tag& tag)
-{
-	std::queue<const Pirus::Tag*> to_print;
-	std::queue<const Pirus::Tag*> to_close;
-	unsigned level = 0;
-	const Pirus::Tag* actual = nullptr;
-
-	to_print.push(&tag);
-
-	while (to_print.size())
+	build_new_line_and_indetions(level);
+	build_front(tag);
+	build_attributes(tag);
+	if (tag.are_children_allowed())
 	{
-		actual = to_print.front();
-		to_print.pop();
-
-		build_new_line_and_indetions(level++);
-		build_front(*actual);
-		build_attributes(*actual);
-
-		if (!actual->are_children_allowed())
-		{
-			build_end_of_single_tag();
-		}
-		else
-		{
-			build_close_of_container_tag();
-
-			for (const auto& child : actual->get_children())
-				to_print.push(&child);
-
-			to_close.push(actual);
-		}
+		build_close_of_container_tag();
+		build_children_of_tag(tag, level);
+		build_end_of_container_tag(tag);
+	}
+	else
+	{
+		build_end_of_single_tag();
 	}
 
-	return std::make_pair(to_close, level);
+	if (level == 0)
+		generated_output = builder.str();
 }
 
-void Pirus::TagFormatter::build_close_tags(std::queue<const Pirus::Tag*>& to_close, unsigned level)
-{
-	const Pirus::Tag* actual = nullptr;
-
-	while (to_close.size())
-	{
-		actual = to_close.front();
-		to_close.pop();
-
-		if (--level == 1)
-			builder << new_line;
-		else
-			build_new_line_and_indetions(level);
-
-		build_end_of_container_tag(*actual);
-	}
-}
 
 void Pirus::TagFormatter::build_new_line_and_indetions(unsigned level)
 {
@@ -113,6 +78,20 @@ void Pirus::TagFormatter::build_end_of_single_tag()
 void Pirus::TagFormatter::build_close_of_container_tag()
 {
 	builder << close_tag;
+}
+
+void Pirus::TagFormatter::build_children_of_tag(const Pirus::Tag & tag, unsigned level)
+{
+	if (!tag.get_children().empty())
+	{
+		for (const auto& child : tag.get_children())
+			generate_output(child, level + 1);
+
+		if (level == 0 && !tag.get_children().empty())
+			builder << new_line;
+
+		build_new_line_and_indetions(level);
+	}
 }
 
 void Pirus::TagFormatter::build_end_of_container_tag(const Pirus::Tag& tag)
@@ -151,7 +130,8 @@ Pirus::text Pirus::TagFormatter::transform_by(std::wstring_view tag_name, Pirus:
 		break;
 		case Pirus::FORMAT_TEXT::FIRST_LETTER_CAPITAL:
 		{
-			if (txt.size() > 1)
+			std::transform(std::begin(txt), std::end(txt), std::begin(txt), std::tolower);
+			if (txt.size() >= 1)
 			{
 				txt[0] = std::toupper(txt[0]);
 			}
@@ -160,4 +140,9 @@ Pirus::text Pirus::TagFormatter::transform_by(std::wstring_view tag_name, Pirus:
 	}
 
 	return txt;
+}
+
+void Pirus::TagFormatter::clear_buffor()
+{
+	generated_output.clear();
 }

@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include <utility>
-#include <queue>
+#include <stack>
 
 #include "Definitions.h"
 #include "Tag.h"
@@ -13,22 +13,23 @@ namespace Pirus
 	{
 	public:
 		TagFormatter(const Pirus::Tag& tag);
-
+		
+		void set_format_tag_name(Pirus::FORMAT_TEXT format_type);
 		const Pirus::text& to_text();
 
 		virtual ~TagFormatter() = default;
 
 	private:
-		void generate_output(const Pirus::Tag& tag);
-		std::pair<std::queue<const Pirus::Tag*>, unsigned> build_open_tags(const Pirus::Tag& tag);
-		void build_close_tags(std::queue<const Pirus::Tag*>& to_close, unsigned level);
+		void generate_output(const Pirus::Tag& tag, unsigned level = 0);
 		void build_new_line_and_indetions(unsigned level);
 		void build_front(const Pirus::Tag& tag);
 		void build_attributes(const Pirus::Tag& tag);
 		void build_end_of_single_tag();
 		void build_close_of_container_tag();
+		void build_children_of_tag(const Pirus::Tag& tag, unsigned level);
 		void build_end_of_container_tag(const Pirus::Tag& tag);
 		Pirus::text transform_by(std::wstring_view tag_name, Pirus::FORMAT_TEXT format_type);
+		void clear_buffor();
 
 		const Pirus::Tag& tag_to_format;
 

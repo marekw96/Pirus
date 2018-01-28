@@ -21,6 +21,7 @@ namespace Pirus
 
 	private:
 		void generate_output(const Pirus::Tag& tag, unsigned level = 0);
+		void generate_output(const Pirus::text& tag, unsigned level = 0);
 		void build_new_line_and_indetions(unsigned level);
 		void build_front(const Pirus::Tag& tag);
 		void build_attributes(const Pirus::Tag& tag);

@@ -55,7 +55,15 @@ void Pirus::Tag::add_child(const Pirus::Tag& child)
 	children.emplace_back(child);
 }
 
-const std::vector<Pirus::Tag>& Pirus::Tag::get_children() const
+void Pirus::Tag::add_child(const Pirus::text& child)
+{
+	if (allow_children != Pirus::ALLOW_CHILDREN::YES)
+		throw Pirus::ChildrenNotAllowed{};
+
+	children.emplace_back(child);
+}
+
+const std::vector<std::variant<Pirus::Tag, Pirus::text>>& Pirus::Tag::get_children() const
 {
 	return children;
 }

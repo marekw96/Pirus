@@ -157,3 +157,17 @@ TEST(container_tag_with_multiple_container_children, tag_formatter)
 
 	ASSERT_EQ(output, correct);
 }
+
+TEST(container_tag_with_text_children, tag_formatter)
+{
+	Pirus::Tag tag_parent(L"parent", Pirus::ALLOW_CHILDREN::YES);
+	tag_parent.add_child(Pirus::Tag(L"child", Pirus::ALLOW_CHILDREN::NO));
+	tag_parent.add_child(L"tresc");
+	tag_parent.add_child(Pirus::Tag(L"child2", Pirus::ALLOW_CHILDREN::YES));
+	tag_parent.add_child(L"tresc2");
+
+	auto output = Pirus::TagFormatter(tag_parent).to_text();
+	auto correct = L"<parent>\n       <child />\n       tresc\n       <child2></child2>\n       tresc2\n</parent>";
+
+	ASSERT_EQ(output, correct);
+}

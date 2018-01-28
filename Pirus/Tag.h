@@ -2,6 +2,7 @@
 
 #include "Definitions.h"
 #include <optional>
+#include <variant>
 #include <vector>
 #include <algorithm>
 
@@ -25,7 +26,8 @@ namespace Pirus
 		std::vector<Pirus::text> get_attributes_names() const;
 	
 		void add_child(const Pirus::Tag& child);
-		const std::vector<Pirus::Tag>& get_children() const;
+		void add_child(const Pirus::text& child);
+		const std::vector<std::variant<Pirus::Tag, Pirus::text>>& get_children() const;
 		template<typename T>
 		void remove_children_if(T condition);
 
@@ -35,7 +37,7 @@ namespace Pirus
 		Pirus::text name;
 		Pirus::ALLOW_CHILDREN allow_children;
 		Pirus::attributes_map attributes;
-		std::vector<Pirus::Tag> children;
+		std::vector<std::variant<Pirus::Tag, Pirus::text>> children;
 	};
 
 	template<typename T>

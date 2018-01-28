@@ -98,8 +98,10 @@ TEST(add_child, children)
 	const auto& children = tag.get_children();
 
 	ASSERT_EQ(children.size(), 2);
-	ASSERT_EQ(children[0].get_name(), L"child");
-	ASSERT_EQ(children[1].get_name(), L"child2");
+	if(auto child = std::get_if<Pirus::Tag>(&children[0]))
+		ASSERT_EQ(child->get_name(), L"child");
+	if (auto child = std::get_if<Pirus::Tag>(&children[1]))
+		ASSERT_EQ(child->get_name(), L"child2");
 }
 
 TEST(remove_child, children)
@@ -111,10 +113,26 @@ TEST(remove_child, children)
 
 	ASSERT_EQ(tag.get_children().size(), 3);
 
-	tag.remove_children_if([](const auto& child){ return child.get_name() == L"child2";});
+	tag.remove_children_if([](const auto& child){
+		if (auto child_getter = std::get_if<Pirus::Tag>(&child))
+			return child_getter->get_name() == L"child2";
+		return false;
+	});
 
 	const auto& children = tag.get_children();
 	ASSERT_EQ(children.size(), 2);
-	ASSERT_EQ(children[0].get_name(), L"child");
-	ASSERT_EQ(children[1].get_name(), L"child3");
+	if (auto child = std::get_if<Pirus::Tag>(&children[0]))
+		ASSERT_EQ(child->get_name(), L"child");
+
+	if (auto child = std::get_if<Pirus::Tag>(&children[1]))
+		ASSERT_EQ(child->get_name(), L"child3");
+}
+
+TEST(add_text_child, children)
+{
+	Pirus::Tag tag(L"test", Pirus::ALLOW_CHILDREN::YES);
+	tag.add_child(L"text text text πÊøü≥ÛÒ •Øè£”—");
+
+	if (auto child = std::get_if<Pirus::text>(&tag.get_children()[0]))
+		ASSERT_EQ(*child, L"text text text πÊøü≥ÛÒ •Øè£”—");
 }

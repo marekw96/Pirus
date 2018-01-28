@@ -51,6 +51,12 @@ void Pirus::TagFormatter::generate_output(const Pirus::Tag& tag, unsigned level)
 		generated_output = builder.str();
 }
 
+void Pirus::TagFormatter::generate_output(const Pirus::text& tag, unsigned level)
+{
+	build_new_line_and_indetions(level);
+	builder << tag;
+}
+
 
 void Pirus::TagFormatter::build_new_line_and_indetions(unsigned level)
 {
@@ -85,7 +91,13 @@ void Pirus::TagFormatter::build_children_of_tag(const Pirus::Tag & tag, unsigned
 	if (!tag.get_children().empty())
 	{
 		for (const auto& child : tag.get_children())
-			generate_output(child, level + 1);
+		{
+			if(auto child_tag = std::get_if<Pirus::Tag>(&child))
+				generate_output(*child_tag, level + 1);
+
+			if (auto child_tag = std::get_if<Pirus::text>(&child))
+				generate_output(*child_tag, level + 1);
+		}
 
 		if (level == 0 && !tag.get_children().empty())
 			builder << new_line;
